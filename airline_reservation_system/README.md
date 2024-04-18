@@ -1,10 +1,11 @@
 # Airline Reservation System
 
-This is a project for Enterprise applications course LS 2023/2024. The goal is to implement a system for managing airlineâ€™s customers, flights, tickets, etc. 
+This is a project for Enterprise applications course LS 2023/2024. The goal is to implement a system for managing airlineÕs customers, flights, tickets, etc. 
 
 ### Main entities
 
-- Customer
+Customer:
+
   - id
   - first_name
   - last_name
@@ -14,7 +15,8 @@ This is a project for Enterprise applications course LS 2023/2024. The goal is t
   - password (hash)
 
 
-- Flight
+Flight:
+
   - id 
   - number 
   - departure
@@ -27,7 +29,8 @@ This is a project for Enterprise applications course LS 2023/2024. The goal is t
   - aircraft_id
 
 
-- Fare_tariff
+Fare_tariff:
+
   - id
   - code
   - class (business, premium, economy)
@@ -35,7 +38,8 @@ This is a project for Enterprise applications course LS 2023/2024. The goal is t
   - flight_id
 
 
-- Airport
+Airport:
+
   - id
   - code
   - name
@@ -46,16 +50,18 @@ This is a project for Enterprise applications course LS 2023/2024. The goal is t
   - longitude
 
 
-- Aircraft
-    - id
-    - code
-    - model
-    - business_capacity
-    - premium_capacity
-    - economy_capacity
+Aircraft:
+
+  - id
+  - code
+  - model
+  - business_capacity
+  - premium_capacity
+  - economy_capacity
 
 
-- Ticket
+Ticket:
+
   - id
   - number
   - class
