@@ -26,15 +26,16 @@ Flight:
   - airport_departure_id
   - airport_arrival_id
   - aircraft_id
+  - fare_tariff_id
 
 
 Fare_tariff:
 
   - id
   - code
-  - class (business, premium, economy)
-  - price
-  - flight_id
+  - business_price
+  - premium_price
+  - economy_price
 
 
 Airport:
@@ -68,7 +69,8 @@ Ticket:
   - price_after_discount
   - seat_number
   - passenger_full_name
-  - date
+  - departure
+  - arrival
   - flight_id
   - customer_id
 

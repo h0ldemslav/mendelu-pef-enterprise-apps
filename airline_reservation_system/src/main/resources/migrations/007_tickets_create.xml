@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+    <changeSet id="1" author="xastapen">
+        <createTable tableName="ticket">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="number" type="char(13)" />
+            <column name="class" type="varchar(32)" />
+            <column name="price" type="decimal(10, 2)" />
+            <column name="discount" type="decimal(10, 2)" />
+            <column name="price_after_discount" type="decimal(10, 2)" />
+            <column name="seat_number" type="varchar(10)" />
+            <column name="passenger_full_name" type="varchar(512)" />
+            <column name="departure" type="timestamp with time zone" />
+            <column name="arrival" type="timestamp with time zone" />
+            <column name="flight_id" type="bigint" />
+            <column name="customer_id" type="uuid" />
+        </createTable>
+    </changeSet>
+    <changeSet id="2" author="xastapen">
+        <addForeignKeyConstraint baseTableName="ticket"
+                                 baseColumnNames="flight_id"
+                                 constraintName="fk_ticket_flight"
+                                 referencedTableName="flight"
+                                 referencedColumnNames="id"
+        />
+        <addForeignKeyConstraint baseTableName="ticket"
+                                 baseColumnNames="customer_id"
+                                 constraintName="fk_ticket_customer"
+                                 referencedTableName="customer"
+                                 referencedColumnNames="id"
+        />
+    </changeSet>
+</databaseChangeLog>
