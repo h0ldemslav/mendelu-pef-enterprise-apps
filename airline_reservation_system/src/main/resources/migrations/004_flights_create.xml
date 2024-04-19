@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+    <changeSet id="1" author="xastapen">
+        <createTable tableName="flight">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="number" type="varchar(32)" />
+            <column name="departure" type="timestamp with time zone" />
+            <column name="arrival" type="timestamp with time zone" />
+            <column name="status" type="varchar(64)" />
+            <column name="delay" type="smallint" />
+            <column name="aircraft_id" type="bigint" />
+            <column name="airport_departure_id" type="bigint" />
+            <column name="airport_arrival_id" type="bigint" />
+        </createTable>
+    </changeSet>
+    <changeSet id="2" author="xastapen">
+        <addForeignKeyConstraint baseTableName="flight"
+                                 baseColumnNames="aircraft_id"
+                                 constraintName="fk_flight_aircraft"
+                                 referencedTableName="aircraft"
+                                 referencedColumnNames="id"
+        />
+        <addForeignKeyConstraint baseTableName="flight"
+                                 baseColumnNames="airport_departure_id"
+                                 constraintName="fk_flight_airport_departure"
+                                 referencedTableName="airport"
+                                 referencedColumnNames="id"
+        />
+        <addForeignKeyConstraint baseTableName="flight"
+                                 baseColumnNames="airport_arrival_id"
+                                 constraintName="fk_flight_airport_arrival"
+                                 referencedTableName="airport"
+                                 referencedColumnNames="id"
+        />
+    </changeSet>
+</databaseChangeLog>

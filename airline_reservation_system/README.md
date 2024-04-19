@@ -21,7 +21,6 @@ Flight:
   - number 
   - departure
   - arrival
-  - gateway
   - status
   - delay
   - airport_departure_id
@@ -46,8 +45,7 @@ Airport:
   - country_code
   - region_code
   - municipality
-  - latitude
-  - longitude
+  - gps_code
 
 
 Aircraft:
