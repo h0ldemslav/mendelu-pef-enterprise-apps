@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,7 +23,7 @@ public class Ticket {
     private Long id;
 
     @NotEmpty
-    private String number = "";
+    private String number;
 
     @Column(name = "class")
     @NotEmpty
@@ -33,7 +34,7 @@ public class Ticket {
     private Double price;
 
     @NotNull
-    @Positive
+    @PositiveOrZero
     private Double discount;
 
     @Column(name = "price_after_discount")

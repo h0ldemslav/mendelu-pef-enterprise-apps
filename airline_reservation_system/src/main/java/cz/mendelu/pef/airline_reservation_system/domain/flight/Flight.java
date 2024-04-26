@@ -2,6 +2,7 @@ package cz.mendelu.pef.airline_reservation_system.domain.flight;
 
 import cz.mendelu.pef.airline_reservation_system.domain.aircraft.Aircraft;
 import cz.mendelu.pef.airline_reservation_system.domain.airport.Airport;
+import cz.mendelu.pef.airline_reservation_system.domain.fare_tariff.FareTariff;
 import cz.mendelu.pef.airline_reservation_system.domain.ticket.Ticket;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -54,4 +55,9 @@ public class Flight {
     @NotNull
     @OneToMany(mappedBy = "flight")
     private Set<Ticket> tickets = new HashSet<>();
+
+    @JoinColumn(name = "fare_tariff_id")
+    @NotNull
+    @ManyToOne
+    private FareTariff fareTariff;
 }
