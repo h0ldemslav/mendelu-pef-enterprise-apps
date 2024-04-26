@@ -1,0 +1,36 @@
+### Get all fare tariffs
+GET http://localhost:8090/fare_tariffs
+Content-Type: application/json
+
+### Get fare tariff by id
+GET http://localhost:8090/fare_tariffs/1
+Content-Type: application/json
+
+### Get fare tariff by invalid id
+GET http://localhost:8090/fare_tariffs/999999
+Content-Type: application/json
+
+### Create a new fare tariff
+POST http://localhost:8090/fare_tariffs
+Content-Type: application/json
+
+{
+  "code": "AB99",
+  "business_price": 3200.0,
+  "premium_price": 1778.0,
+  "economy_price": 234.0
+}
+
+### Update a certain fare tariff by id
+PUT http://localhost:8090/fare_tariffs/33
+Content-Type: application/json
+
+{
+  "code": "AB99",
+  "business_price": 3700.0,
+  "premium_price": 1978.0,
+  "economy_price": 434.0
+}
+
+### Delete fare tariff by id
+DELETE http://localhost:8090/fare_tariffs/33
