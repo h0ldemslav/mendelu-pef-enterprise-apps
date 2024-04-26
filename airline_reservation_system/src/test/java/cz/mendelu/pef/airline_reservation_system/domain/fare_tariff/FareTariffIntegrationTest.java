@@ -39,7 +39,7 @@ public class FareTariffIntegrationTest {
                 .get("/fare_tariffs")
                 .then()
                 .statusCode(200)
-                .body("count", is(2))
+                .body("count", is(3))
                 .body("items[0].id", is(1))
                 .body("items[0].code", is("AB99"))
                 .body("items[0].business_price", is(5513.0f))
@@ -168,16 +168,59 @@ public class FareTariffIntegrationTest {
                 .statusCode(400);
     }
 
-    // TODO
-//    @Test
-//    public void deleteFareTariffById() {
-//        final Long id = 1L;
-//
-//        given()
-//                .pathParam("id", id)
-//                .when()
-//                .delete("/fare_tariffs/{id}")
-//                .then()
-//                .statusCode(204);
-//    }
+    @Test
+    public void deleteFareTariffById() {
+        final Long id = 1L;
+        final Long replacementId = 2L;
+
+        given()
+                .queryParam("id", id)
+                .queryParam("replacementId", replacementId)
+                .when()
+                .delete("/fare_tariffs")
+                .then()
+                .statusCode(204);
+    }
+
+    @Test
+    public void deleteFareTariffByIdWithoutReplacement() {
+        // Fare tariff is not assigned to any flight and in that case fare tariff replacement is not required
+
+        final Long id = 3L;
+
+        given()
+                .queryParam("id", id)
+                .when()
+                .delete("/fare_tariffs")
+                .then()
+                .statusCode(204);
+    }
+
+    @Test
+    public void deleteFareTariffById_FareTariffReplacementNotFound() {
+        final Long id = 1L;
+        final Long replacementId = 999999L;
+
+        given()
+                .queryParam("id", id)
+                .queryParam("replacementId", replacementId)
+                .when()
+                .delete("/fare_tariffs")
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
+    public void deleteFareTariffById_MissingFareTariffReplacement() {
+        // Fare tariff is assigned to certain flights but there is no replacement
+
+        final Long id = 1L;
+
+        given()
+                .queryParam("id", id)
+                .when()
+                .delete("/fare_tariffs")
+                .then()
+                .statusCode(409);
+    }
 }

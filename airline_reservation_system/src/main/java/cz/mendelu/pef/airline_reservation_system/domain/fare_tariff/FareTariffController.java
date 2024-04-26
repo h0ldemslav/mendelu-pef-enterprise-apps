@@ -1,5 +1,8 @@
 package cz.mendelu.pef.airline_reservation_system.domain.fare_tariff;
 
+import cz.mendelu.pef.airline_reservation_system.domain.flight.Flight;
+import cz.mendelu.pef.airline_reservation_system.domain.flight.FlightService;
+import cz.mendelu.pef.airline_reservation_system.utils.exceptions.MissingFareTariffReplacementException;
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.NotFoundException;
 import cz.mendelu.pef.airline_reservation_system.utils.response.ArrayResponse;
 import cz.mendelu.pef.airline_reservation_system.utils.response.ObjectResponse;
@@ -9,16 +12,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("fare_tariffs")
 @Validated
 public class FareTariffController {
 
     private FareTariffService fareTariffService;
+    private FlightService flightService;
 
     @Autowired
-    FareTariffController(FareTariffService fareTariffService) {
+    FareTariffController(FareTariffService fareTariffService, FlightService flightService) {
         this.fareTariffService = fareTariffService;
+        this.flightService = flightService;
     }
 
     @GetMapping(value = "", produces = "application/json")
@@ -77,9 +84,23 @@ public class FareTariffController {
         );
     }
 
-    @DeleteMapping(value = "/{id}")
+    @DeleteMapping(value = "")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteFareTariffById(@PathVariable Long id) {
+    public void deleteFareTariffById(@RequestParam Long id, @RequestParam(required = false) Long replacementId) {
+        List<Flight> flights = flightService.getAllFlightsByFareTariffId(id);
+
+        if (!flights.isEmpty()) {
+            if (replacementId == null) {
+                throw new MissingFareTariffReplacementException();
+            }
+
+            FareTariff fareTariffReplacement = fareTariffService
+                    .getFareTariffById(replacementId)
+                    .orElseThrow(NotFoundException::new);
+
+            flightService.setFareTariff(fareTariffReplacement, flights);
+        }
+
         fareTariffService.deleteFareTariffById(id);
     }
 }

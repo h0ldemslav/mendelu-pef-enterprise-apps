@@ -17,6 +17,7 @@ VALUES ('John', 'Doe', 871.81, '+1 326 363 8324', 'johnnyD222@reverbnation.com',
 
 INSERT INTO public.fare_tariff VALUES (1, 'AB99', 5513.0, 1326.0, 624.0);
 INSERT INTO public.fare_tariff VALUES (2, 'SK91', 10513.0, 1726.0, 737.0);
+INSERT INTO public.fare_tariff VALUES (3, 'JJ51', 9670.0, 2026.0, 791.0);
 
 INSERT INTO public.flight VALUES (1, 'AA0718',
                                   TO_TIMESTAMP('2017-07-16 09:35:00', 'YYYY-MM-DD HH24:MI:SS'),
