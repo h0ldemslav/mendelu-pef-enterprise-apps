@@ -38,7 +38,6 @@ public class Flight {
 
     private Integer delay;
 
-    @NotNull
     @ManyToOne
     private Aircraft aircraft;
 
@@ -60,4 +59,9 @@ public class Flight {
     @NotNull
     @ManyToOne
     private FareTariff fareTariff;
+
+    @PreRemove
+    public void detachTickets() {
+        tickets.forEach(t -> t.setFlight(null));
+    }
 }

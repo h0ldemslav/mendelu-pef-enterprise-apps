@@ -41,4 +41,9 @@ public class Aircraft {
     @NotNull
     @OneToMany(mappedBy = "aircraft")
     private Set<Flight> flights = new HashSet<>();
+
+    @PreRemove
+    public void detachFlights() {
+        flights.forEach(fl -> fl.setAircraft(null));
+    }
 }

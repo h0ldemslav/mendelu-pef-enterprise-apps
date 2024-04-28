@@ -44,6 +44,6 @@ public class Customer {
     private String password;
 
     @NotNull
-    @OneToMany(mappedBy = "customer")
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private Set<Ticket> purchasedTickets = new HashSet<>();
 }

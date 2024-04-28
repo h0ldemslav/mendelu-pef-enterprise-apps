@@ -56,7 +56,6 @@ public class Ticket {
     @NotNull
     private OffsetDateTime arrival;
 
-    @NotNull
     @ManyToOne
     private Flight flight;
 
