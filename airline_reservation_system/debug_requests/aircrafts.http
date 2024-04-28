@@ -1,0 +1,34 @@
+### Get all aircrafts
+GET http://localhost:8090/aircrafts
+Content-Type: application/json
+
+### Get aircraft by id
+GET http://localhost:8090/aircrafts/5
+Content-Type: application/json
+
+### Create a new aircraft
+POST http://localhost:8090/aircrafts
+Content-Type: application/json
+
+{
+  "code": "AFEBJ",
+  "model": "Boeing 767",
+  "business_capacity": 12,
+  "premium_capacity": 50,
+  "economy_capacity": 98
+}
+
+### Update a certain aircraft by id
+PUT http://localhost:8090/aircrafts/103
+Content-Type: application/json
+
+{
+  "code": "SKSKS",
+  "model": "Boeing 767",
+  "business_capacity": 12,
+  "premium_capacity": 50,
+  "economy_capacity": 98
+}
+
+### Delete aircraft by id
+DELETE http://localhost:8090/aircrafts/103
