@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
@@ -40,6 +41,7 @@ public class Aircraft {
 
     @NotNull
     @OneToMany(mappedBy = "aircraft")
+    @EqualsAndHashCode.Exclude
     private Set<Flight> flights = new HashSet<>();
 
     @PreRemove

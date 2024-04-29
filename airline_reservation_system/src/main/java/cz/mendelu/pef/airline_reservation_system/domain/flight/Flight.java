@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
@@ -53,6 +54,7 @@ public class Flight {
 
     @NotNull
     @OneToMany(mappedBy = "flight")
+    @EqualsAndHashCode.Exclude
     private Set<Ticket> tickets = new HashSet<>();
 
     @JoinColumn(name = "fare_tariff_id")
@@ -61,7 +63,12 @@ public class Flight {
     private FareTariff fareTariff;
 
     @PreRemove
-    public void detachTickets() {
+    public void detachAll() {
+        if (aircraft != null) {
+            aircraft.getFlights().remove(this);
+        }
+        airportDeparture.getDepartureFlights().remove(this);
+        airportArrival.getArrivalFlights().remove(this);
         tickets.forEach(t -> t.setFlight(null));
     }
 }
