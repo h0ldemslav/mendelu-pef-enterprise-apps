@@ -1,0 +1,36 @@
+### Get all customers with page 0 and limit 10
+GET http://localhost:8090/customers?page=0&limit=10
+Content-Type: application/json
+
+### Get customer by id
+GET http://localhost:8090/customers/7aeba170-3b55-420c-886f-bac8ed345bc4
+Content-Type: application/json
+
+### Create a new customer
+POST http://localhost:8090/customers
+Content-Type: application/json
+
+{
+  "credit": 100.81,
+  "phone": "+42 326 363 8324",
+  "email": "johhnydoe2077@reverbnation.com",
+  "password": "$2a$04$qUa62czwXuggL0Z6ylB6m.GLe0JLsU3vA/8mEW.3uPOkCCMgVSAHS",
+  "first_name": "John",
+  "last_name": "Doe"
+}
+
+### Update customer by id
+PUT http://localhost:8090/customers/72e8fde7-e122-40b2-b368-dacaba52d2a1
+Content-Type: application/json
+
+{
+  "credit": 9555.81,
+  "phone": "+42 326 363 8324",
+  "email": "johhnydoe2077@reverbnation.com",
+  "password": "$2a$04$qUa62czwXuggL0Z6ylB6m.GLe0JLsU3vA/8mEW.3uPOkCCMgVSAHS",
+  "first_name": "John",
+  "last_name": "Doe"
+}
+
+### Delete customer by id
+DELETE http://localhost:8090/customers/72e8fde7-e122-40b2-b368-dacaba52d2a1
