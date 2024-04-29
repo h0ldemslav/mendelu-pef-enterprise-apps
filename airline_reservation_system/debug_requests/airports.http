@@ -1,0 +1,36 @@
+### Get all airports with page 0 and limit 10
+GET http://localhost:8090/airports?page=0&limit=10
+Content-Type: application/json
+
+### Get airport by id
+GET http://localhost:8090/airports/1
+Content-Type: application/json
+
+### Create a new airport
+POST http://localhost:8090/airports
+Content-Type: application/json
+
+{
+  "code": "ARN",
+  "name": "Stockholm-Arlanda",
+  "municipality": "Sigtuna Municipality",
+  "country_code": "SE",
+  "region_code": "SE-ARN",
+  "gps_code": "ESSA"
+}
+
+### Update airport by id
+PUT http://localhost:8090/airports/1003
+Content-Type: application/json
+
+{
+  "code": "ARN",
+  "name": "Stockholm-Arlanda",
+  "municipality": "Sigtuna Municipality, Stockholm County",
+  "country_code": "SE",
+  "region_code": "SE-ARN",
+  "gps_code": "ESSA"
+}
+
+### Delete airport by id
+DELETE http://localhost:8090/airports/1003
