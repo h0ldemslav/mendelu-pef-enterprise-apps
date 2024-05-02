@@ -43,7 +43,6 @@ public class Ticket {
     private Double priceAfterDiscount;
 
     @Column(name = "seat_number")
-    @NotEmpty
     private String seatNumber;
 
     @Column(name = "passenger_full_name")

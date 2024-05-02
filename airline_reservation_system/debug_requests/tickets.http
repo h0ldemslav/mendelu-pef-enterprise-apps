@@ -1,0 +1,18 @@
+### Get all tickets with page 0 and limit 10
+GET http://localhost:8090/tickets?page=0&limit=10
+Content-Type: application/json
+
+### Get ticket by id
+GET http://localhost:8090/tickets/1
+Content-Type: application/json
+
+### Create a new ticket
+POST http://localhost:8090/tickets
+Content-Type: application/json
+
+{
+  "number": "0008386672215",
+  "class": "Economy",
+  "flightId": 9999,
+  "customerId": "87fc5dda-7f84-4af5-b157-a730f7ea3e97"
+}

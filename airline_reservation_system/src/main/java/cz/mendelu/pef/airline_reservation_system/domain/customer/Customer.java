@@ -48,4 +48,8 @@ public class Customer {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     private Set<Ticket> purchasedTickets = new HashSet<>();
+
+    public String getFullName() {
+        return this.firstName + " " + this.lastName;
+    }
 }
