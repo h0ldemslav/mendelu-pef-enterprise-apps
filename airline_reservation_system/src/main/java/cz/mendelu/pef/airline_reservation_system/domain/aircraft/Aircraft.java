@@ -1,6 +1,7 @@
 package cz.mendelu.pef.airline_reservation_system.domain.aircraft;
 
 import cz.mendelu.pef.airline_reservation_system.domain.flight.Flight;
+import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -47,5 +48,13 @@ public class Aircraft {
     @PreRemove
     public void detachFlights() {
         flights.forEach(fl -> fl.setAircraft(null));
+    }
+
+    public Integer getCapacityByTicketClass(TicketClass ticketClass) {
+        return switch (ticketClass) {
+            case Business -> this.businessCapacity;
+            case Premium -> this.premiumCapacity;
+            case Economy -> this.economyCapacity;
+        };
     }
 }
