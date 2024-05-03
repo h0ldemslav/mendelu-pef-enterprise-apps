@@ -120,4 +120,50 @@ public class FlightService {
 
         return tickets.size() < aircraft.getCapacityByTicketClass(ticketClass);
     }
+
+    public boolean isSeatNumberValid(Flight flight, TicketClass ticketClass, String seatNumber) {
+        if (seatNumber == null || flight.getAircraft() == null) {
+            return false;
+        }
+
+        var seatNumberAndLetter = seatNumber.trim().split("(?<=\\d)(?=[A-Z])");
+
+        if (seatNumberAndLetter.length != 2) {
+            return false;
+        }
+
+        int number = 0;
+        String letter = seatNumberAndLetter[1].toUpperCase();
+
+        if (!List.of("A", "B", "C", "D", "E", "F").contains(letter)) {
+            return false;
+        }
+
+        try {
+            number = parseInt(seatNumberAndLetter[0]);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        var aircraftCapacity = flight.getAircraft();
+        var ticketClassSeatRowNumberStart = 0;
+        var ticketClassSeatRowNumberEnd = 0;
+
+        switch (ticketClass) {
+            case Business:
+                ticketClassSeatRowNumberStart = 1;
+                ticketClassSeatRowNumberEnd = aircraftCapacity.getBusinessCapacity();
+                break;
+            case Premium:
+                ticketClassSeatRowNumberStart = aircraftCapacity.getBusinessCapacity() + 1;
+                ticketClassSeatRowNumberEnd = aircraftCapacity.getPremiumCapacity();
+                break;
+            case Economy:
+                ticketClassSeatRowNumberStart = aircraftCapacity.getPremiumCapacity() + 1;
+                ticketClassSeatRowNumberEnd = aircraftCapacity.getEconomyCapacity();
+                break;
+        }
+
+        return number >= ticketClassSeatRowNumberStart && number <= ticketClassSeatRowNumberEnd;
+    }
 }
