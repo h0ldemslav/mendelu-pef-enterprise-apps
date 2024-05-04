@@ -13,6 +13,24 @@ Content-Type: application/json
 {
   "number": "0008386672215",
   "class": "Economy",
+  "seat_number": "53A",
+  "passenger_full_name": "Paul Smith",
   "flightId": 9999,
-  "customerId": "87fc5dda-7f84-4af5-b157-a730f7ea3e97"
+  "customerId": "35645ea7-2b38-430d-aab8-f72302cdc2c8"
 }
+
+### Update ticket by id
+PUT http://localhost:8090/tickets/5169
+Content-Type: application/json
+
+{
+  "number": "0008386672215",
+  "class": "Economy",
+  "seat_number": "53A",
+  "passenger_full_name": "Paul Johnathan Smith",
+  "flightId": 9999,
+  "customerId": "35645ea7-2b38-430d-aab8-f72302cdc2c8"
+}
+
+### Delete ticket by id
+DELETE http://localhost:8090/tickets/5169

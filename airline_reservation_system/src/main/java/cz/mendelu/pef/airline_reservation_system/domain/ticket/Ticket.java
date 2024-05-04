@@ -61,4 +61,14 @@ public class Ticket {
     @NotNull
     @ManyToOne
     private Customer customer;
+
+    public void detachFromRelatedEntities() {
+        if (flight != null) {
+            flight.getTickets().remove(this);
+        }
+
+        if (customer != null) {
+            customer.getPurchasedTickets().remove(this);
+        }
+    }
 }
