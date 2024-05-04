@@ -16,8 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Objects;
-
 @RestController
 @RequestMapping("tickets")
 @Validated
@@ -86,7 +84,7 @@ public class TicketController {
             throw new SeatIsNotAvailableException();
         }
 
-        double customSeatNumberPrice = 0;
+        var ticketPrice = ticket.getPrice();
 
         if (ticket.getSeatNumber() == null) {
             // Automatically assign the closest available seat
@@ -94,34 +92,24 @@ public class TicketController {
         } else {
             // Customer selected a custom seat that needs to be validated before assigning
             var isCustomSeatNumberValid = flightService.isSeatNumberValid(flight, ticketClass, request.getSeatNumber());
-            var ticketWithSeatNumberFromRequest = flight.getTickets()
-                    .stream()
-                    .filter(t -> t.getId() != null && Objects.equals(t.getSeatNumber(), request.getSeatNumber().trim()))
-                    .findFirst();
+            var isSeatNumberOccupied = flightService.isSeatNumberOccupied(flight, request.getSeatNumber().trim());
 
-            if (!isCustomSeatNumberValid || ticketWithSeatNumberFromRequest.isPresent()) {
+            if (!isCustomSeatNumberValid || isSeatNumberOccupied) {
                 ticket.detachFromRelatedEntities();
                 throw new SeatIsNotAvailableException();
             }
 
-            customSeatNumberPrice += (ticket.getPrice() * 0.1);
+            ticketPrice += ticketService.getTicketExtraPriceForCustomSeat(ticket, ticketClass);
         }
 
-        var customerCanPurchaseSeat = customerService.isEnoughCreditForFlightTicketClass(
-                flight,
-                ticketClass,
-                customSeatNumberPrice,
-                ticket.getCustomer()
-        );
-
-        if (!customerCanPurchaseSeat) {
+        if (!customerService.isCustomerHasEnoughCredit(customer, ticketPrice)) {
             ticket.detachFromRelatedEntities();
             throw new NotEnoughCreditException();
         }
 
-        customer.setCredit(customer.getCredit() - (ticket.getPrice() + customSeatNumberPrice));
-        ticket.setPrice(ticket.getPrice() + customSeatNumberPrice);
-        ticket.setPriceAfterDiscount(ticket.getPrice());
+        customer.setCredit(customer.getCredit() - ticketPrice);
+        ticket.setPrice(ticketPrice);
+        ticket.setPriceAfterDiscount(ticketPrice);
 
         ticketService.createTicket(ticket);
         customerService.updateCustomer(customer.getId(), customer);

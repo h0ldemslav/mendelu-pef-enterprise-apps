@@ -1,5 +1,7 @@
 package cz.mendelu.pef.airline_reservation_system.domain.ticket;
 
+import cz.mendelu.pef.airline_reservation_system.domain.flight.Flight;
+import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -36,5 +38,14 @@ public class TicketService {
 
     public void deleteTicketById(Long id) {
         ticketRepository.deleteById(id);
+    }
+
+    public Double getTicketExtraPriceForCustomSeat(Ticket ticket, TicketClass ticketClass) {
+        Flight flight = ticket.getFlight();
+        if (flight == null) {
+            return null;
+        }
+
+        return flight.getFareTariff().getPriceByTicketClass(ticketClass) * 0.1;
     }
 }

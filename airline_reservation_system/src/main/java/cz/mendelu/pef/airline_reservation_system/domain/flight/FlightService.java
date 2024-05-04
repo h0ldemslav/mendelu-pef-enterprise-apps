@@ -4,6 +4,7 @@ import cz.mendelu.pef.airline_reservation_system.domain.aircraft.Aircraft;
 import cz.mendelu.pef.airline_reservation_system.domain.fare_tariff.FareTariff;
 import cz.mendelu.pef.airline_reservation_system.domain.ticket.Ticket;
 import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
+import cz.mendelu.pef.airline_reservation_system.utils.exceptions.SeatIsNotAvailableException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -165,5 +166,21 @@ public class FlightService {
         }
 
         return number >= ticketClassSeatRowNumberStart && number <= ticketClassSeatRowNumberEnd;
+    }
+
+    /**
+     * This method does not validate the seat number!
+     */
+    public boolean isSeatNumberOccupied(Flight flight, String seatNumber) {
+        if (flight == null) {
+            return true;
+        }
+
+        var ticketWithSeatNumber = flight.getTickets()
+                .stream()
+                .filter(t -> t.getId() != null && Objects.equals(t.getSeatNumber(), seatNumber.trim()))
+                .findFirst();
+
+        return ticketWithSeatNumber.isPresent();
     }
 }
