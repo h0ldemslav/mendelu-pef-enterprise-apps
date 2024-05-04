@@ -148,6 +148,53 @@ public class TicketController {
         );
     }
 
+    @PutMapping(value = "/{id}/reassign_seat", produces = "application/json")
+    public ObjectResponse<TicketResponse> changeSeatAssignment(@PathVariable Long id, @RequestParam String seatNumber) {
+        Ticket ticket = ticketService
+                .getTicketById(id)
+                .orElseThrow(NotFoundException::new);
+        Customer customer = ticket.getCustomer();
+        Flight flight = ticket.getFlight();
+        if (flight == null) {
+            throw new BadRequestException();
+        }
+
+        TicketClass ticketClass = TicketClass
+                .getTicketClassByString(ticket.getTicketClass())
+                .orElseThrow(BadRequestException::new);
+
+        if (!flightService.isSeatNumberValid(flight, ticketClass, seatNumber)) {
+            throw new BadRequestException();
+        }
+
+        if (flightService.isSeatNumberOccupied(flight, seatNumber)) {
+            throw new SeatIsNotAvailableException();
+        }
+
+        var priceForSeatReassignment = ticketService.getTicketExtraPriceForCustomSeat(ticket, ticketClass);
+        var isCustomerCreditEnoughForSeat = customerService.isCustomerHasEnoughCredit(
+                customer,
+                priceForSeatReassignment
+        );
+
+        if (!isCustomerCreditEnoughForSeat) {
+            throw new NotEnoughCreditException();
+        }
+
+        customer.setCredit(customer.getCredit() - priceForSeatReassignment);
+        ticket.setPrice(ticket.getPrice() + priceForSeatReassignment);
+        ticket.setPriceAfterDiscount(ticket.getPrice());
+        ticket.setSeatNumber(seatNumber);
+
+        customerService.updateCustomer(customer.getId(), customer);
+        ticketService.updateTicket(id, ticket);
+
+        return ObjectResponse.of(
+                ticket,
+                TicketResponse::new
+        );
+    }
+
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTicketById(@PathVariable Long id) {

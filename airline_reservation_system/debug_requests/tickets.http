@@ -32,5 +32,9 @@ Content-Type: application/json
   "customerId": "35645ea7-2b38-430d-aab8-f72302cdc2c8"
 }
 
+### Reassign seat number
+PUT http://localhost:8090/tickets/5180/reassign_seat?seatNumber=70F
+Content-Type: application/json
+
 ### Delete ticket by id
 DELETE http://localhost:8090/tickets/5169
