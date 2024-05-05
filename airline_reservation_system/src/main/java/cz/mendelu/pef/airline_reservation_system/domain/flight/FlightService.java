@@ -80,13 +80,14 @@ public class FlightService {
             return Optional.empty();
         }
 
-        List<String> occupiedSeatNumbers = flight
+        final Aircraft aircraft = flight.getAircraft();
+        final List<String> occupiedSeatNumbers = flight
                 .getTickets()
                 .stream()
                 .filter(t -> Objects.equals(t.getTicketClass(), ticketClass.name()) && t.getSeatNumber() != null)
                 .map(Ticket::getSeatNumber)
                 .toList();
-        List<String> seatLetters = List.of("A", "B", "C", "D", "E", "F");
+        final List<String> allowedSeatLetters = List.of("A", "B", "C", "D", "E", "F");
         int seatNumberRow = 1;
         int ticketClassCapacity = flight.getAircraft().getCapacityByTicketClass(ticketClass);
 
@@ -94,18 +95,16 @@ public class FlightService {
             case Business:
                 break;
             case Premium:
-                    var businessCapacity = flight.getAircraft().getCapacityByTicketClass(TicketClass.Business);
-                    seatNumberRow += (int) Math.ceil((double) businessCapacity / seatLetters.size());
+                    seatNumberRow += aircraft.getTotalNumberOfSeatRows(TicketClass.Business, allowedSeatLetters.size());
                     break;
             case Economy:
-                var premiumAndBusinessCapacity = flight.getAircraft().getCapacityByTicketClass(TicketClass.Premium)
-                        + flight.getAircraft().getCapacityByTicketClass(TicketClass.Business);
-                seatNumberRow += (int) Math.ceil((double) premiumAndBusinessCapacity / seatLetters.size());
+                seatNumberRow += aircraft.getTotalNumberOfSeatRows(TicketClass.Premium, allowedSeatLetters.size())
+                        + aircraft.getTotalNumberOfSeatRows(TicketClass.Business, allowedSeatLetters.size());
                 break;
         }
 
         while (ticketClassCapacity > 0) {
-            for (String letter : seatLetters) {
+            for (String letter : allowedSeatLetters) {
                 var seatNumber = seatNumberRow + letter;
 
                 if (!occupiedSeatNumbers.contains(seatNumber)) {
@@ -151,8 +150,9 @@ public class FlightService {
 
         int number = 0;
         String letter = seatNumberAndLetter[1].toUpperCase();
+        final List<String> allowedSeatLetters = List.of("A", "B", "C", "D", "E", "F");
 
-        if (!List.of("A", "B", "C", "D", "E", "F").contains(letter)) {
+        if (!allowedSeatLetters.contains(letter)) {
             return false;
         }
 
@@ -162,22 +162,27 @@ public class FlightService {
             return false;
         }
 
-        var aircraftCapacity = flight.getAircraft();
+        var aircraft = flight.getAircraft();
         var ticketClassSeatRowNumberStart = 0;
         var ticketClassSeatRowNumberEnd = 0;
 
         switch (ticketClass) {
             case Business:
                 ticketClassSeatRowNumberStart = 1;
-                ticketClassSeatRowNumberEnd = aircraftCapacity.getBusinessCapacity();
+                ticketClassSeatRowNumberEnd = aircraft.getTotalNumberOfSeatRows(TicketClass.Business, allowedSeatLetters.size());
                 break;
             case Premium:
-                ticketClassSeatRowNumberStart = aircraftCapacity.getBusinessCapacity() + 1;
-                ticketClassSeatRowNumberEnd = aircraftCapacity.getPremiumCapacity();
+                var premiumEnd = aircraft.getTotalNumberOfSeatRows(TicketClass.Premium, allowedSeatLetters.size());
+
+                ticketClassSeatRowNumberStart = 1 + aircraft.getTotalNumberOfSeatRows(TicketClass.Business, allowedSeatLetters.size());
+                ticketClassSeatRowNumberEnd = ticketClassSeatRowNumberStart + (premiumEnd - 1);
                 break;
             case Economy:
-                ticketClassSeatRowNumberStart = aircraftCapacity.getPremiumCapacity() + 1;
-                ticketClassSeatRowNumberEnd = aircraftCapacity.getEconomyCapacity();
+                var economyEnd = aircraft.getTotalNumberOfSeatRows(TicketClass.Economy, allowedSeatLetters.size());
+
+                ticketClassSeatRowNumberStart = 1 + aircraft.getTotalNumberOfSeatRows(TicketClass.Premium, allowedSeatLetters.size())
+                        + aircraft.getTotalNumberOfSeatRows(TicketClass.Business, allowedSeatLetters.size());
+                ticketClassSeatRowNumberEnd = ticketClassSeatRowNumberStart + (economyEnd - 1);
                 break;
         }
 

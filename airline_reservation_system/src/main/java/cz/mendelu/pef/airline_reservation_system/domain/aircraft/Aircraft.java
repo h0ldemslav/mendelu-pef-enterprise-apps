@@ -57,4 +57,14 @@ public class Aircraft {
             case Economy -> this.economyCapacity;
         };
     }
+
+    public int getTotalNumberOfSeatRows(TicketClass ticketClass, int numberOfSeatsPerRow) {
+        if (numberOfSeatsPerRow == 0) {
+            return 0;
+        }
+
+        var capacity = this.getCapacityByTicketClass(ticketClass);
+
+        return (int) Math.ceil((double) capacity / numberOfSeatsPerRow);
+    }
 }

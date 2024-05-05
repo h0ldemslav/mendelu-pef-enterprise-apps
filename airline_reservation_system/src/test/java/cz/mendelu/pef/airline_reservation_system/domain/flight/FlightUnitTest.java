@@ -190,18 +190,18 @@ public class FlightUnitTest {
 
         // then
         assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Business, "1A"));
-        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Business, "4C"));
-        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Business, "12F"));
-        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Premium, "13E"));
-        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Premium, "32A"));
-        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Premium, "49F"));
-        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Economy, "51A"));
-        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Economy, "71B"));
-        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Economy, "82E"));
+        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Business, "1D"));
+        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Business, "2F"));
+        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Premium, "4E"));
+        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Premium, "5A"));
+        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Premium, "6F"));
+        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Economy, "12A"));
+        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Economy, "15B"));
+        assertTrue(flightService.isSeatNumberValid(flight, TicketClass.Economy, "22E"));
 
-        assertFalse(flightService.isSeatNumberValid(flight, TicketClass.Business, "13A"));
-        assertFalse(flightService.isSeatNumberValid(flight, TicketClass.Premium, "51A"));
-        assertFalse(flightService.isSeatNumberValid(flight, TicketClass.Economy, "91A"));
+        assertFalse(flightService.isSeatNumberValid(flight, TicketClass.Business, "3A"));
+        assertFalse(flightService.isSeatNumberValid(flight, TicketClass.Premium, "12A"));
+        assertFalse(flightService.isSeatNumberValid(flight, TicketClass.Economy, "29A"));
         assertFalse(flightService.isSeatNumberValid(flight, TicketClass.Business, ""));
         assertFalse(flightService.isSeatNumberValid(flight, TicketClass.Business, "fdlkf3j4l35ljk"));
         assertFalse(flightService.isSeatNumberValid(flight, TicketClass.Business, "@A"));
