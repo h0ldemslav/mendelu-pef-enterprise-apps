@@ -4,7 +4,6 @@ import cz.mendelu.pef.airline_reservation_system.domain.aircraft.Aircraft;
 import cz.mendelu.pef.airline_reservation_system.domain.fare_tariff.FareTariff;
 import cz.mendelu.pef.airline_reservation_system.domain.ticket.Ticket;
 import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
-import cz.mendelu.pef.airline_reservation_system.utils.exceptions.SeatIsNotAvailableException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -76,54 +75,71 @@ public class FlightService {
         flightRepository.saveAll(flights);
     }
 
-    public String getSeatNumber(Flight flight, TicketClass ticketClass) {
-        if (flight.getAircraft() == null) {
-            return null;
+    public Optional<String> getSeatNumber(Flight flight, TicketClass ticketClass) {
+        if (flight == null || flight.getAircraft() == null) {
+            return Optional.empty();
         }
 
-        var tickets = flight.getTickets()
+        List<String> occupiedSeatNumbers = flight
+                .getTickets()
                 .stream()
                 .filter(t -> Objects.equals(t.getTicketClass(), ticketClass.name()) && t.getSeatNumber() != null)
-                .sorted(Comparator.comparing(Ticket::getSeatNumber))
+                .map(Ticket::getSeatNumber)
                 .toList();
+        List<String> seatLetters = List.of("A", "B", "C", "D", "E", "F");
+        int seatNumberRow = 1;
+        int ticketClassCapacity = flight.getAircraft().getCapacityByTicketClass(ticketClass);
 
-        if (tickets.isEmpty()) {
-            return switch (ticketClass) {
-                case Business -> "1A";
-                case Premium -> String.valueOf(flight.getAircraft().getBusinessCapacity() + 1) + 'A';
-                case Economy -> String.valueOf(flight.getAircraft().getPremiumCapacity() + 1) + 'A';
-            };
+        switch (ticketClass) {
+            case Business:
+                break;
+            case Premium:
+                    var businessCapacity = flight.getAircraft().getCapacityByTicketClass(TicketClass.Business);
+                    seatNumberRow += (int) Math.ceil((double) businessCapacity / seatLetters.size());
+                    break;
+            case Economy:
+                var premiumAndBusinessCapacity = flight.getAircraft().getCapacityByTicketClass(TicketClass.Premium)
+                        + flight.getAircraft().getCapacityByTicketClass(TicketClass.Business);
+                seatNumberRow += (int) Math.ceil((double) premiumAndBusinessCapacity / seatLetters.size());
+                break;
         }
 
-        var lastSeat = tickets.get(tickets.size() - 1)
-                .getSeatNumber()
-                .split("(?<=\\d)(?=[A-Z])");
+        while (ticketClassCapacity > 0) {
+            for (String letter : seatLetters) {
+                var seatNumber = seatNumberRow + letter;
 
-        // Checking if seat letter is the last letter in the seat row in aircraft
-        if (Objects.equals(lastSeat[1], "F")) {
-            return (parseInt(lastSeat[0]) + 1) + "A";
+                if (!occupiedSeatNumbers.contains(seatNumber)) {
+                    return Optional.of(seatNumber);
+                }
+            }
+
+            seatNumberRow++;
+            ticketClassCapacity--;
         }
 
-        return lastSeat[0] + (char) (lastSeat[1].charAt(0) + 1);
+        return Optional.empty();
     }
 
     public boolean isTicketClassSeatsAvailable(Flight flight, TicketClass ticketClass) {
-        var aircraft = flight.getAircraft();
+        if (flight == null) {
+            return false;
+        }
 
+        var aircraft = flight.getAircraft();
         if (aircraft == null) {
             return false;
         }
 
         var tickets = flight.getTickets()
                 .stream()
-                .filter(t -> Objects.equals(t.getTicketClass(), ticketClass.name()))
+                .filter(t -> t.getId() != null && Objects.equals(t.getTicketClass(), ticketClass.name()))
                 .toList();
 
         return tickets.size() < aircraft.getCapacityByTicketClass(ticketClass);
     }
 
     public boolean isSeatNumberValid(Flight flight, TicketClass ticketClass, String seatNumber) {
-        if (seatNumber == null || flight.getAircraft() == null) {
+        if (seatNumber == null || flight == null || flight.getAircraft() == null) {
             return false;
         }
 

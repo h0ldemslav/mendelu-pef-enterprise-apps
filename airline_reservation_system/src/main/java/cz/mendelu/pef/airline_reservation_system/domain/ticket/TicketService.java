@@ -40,12 +40,12 @@ public class TicketService {
         ticketRepository.deleteById(id);
     }
 
-    public Double getTicketExtraPriceForCustomSeat(Ticket ticket, TicketClass ticketClass) {
+    public Optional<Double> getTicketExtraPriceForCustomSeat(Ticket ticket, TicketClass ticketClass) {
         Flight flight = ticket.getFlight();
         if (flight == null) {
-            return null;
+            return Optional.empty();
         }
 
-        return flight.getFareTariff().getPriceByTicketClass(ticketClass) * 0.1;
+        return Optional.of(flight.getFareTariff().getPriceByTicketClass(ticketClass) * 0.1);
     }
 }
