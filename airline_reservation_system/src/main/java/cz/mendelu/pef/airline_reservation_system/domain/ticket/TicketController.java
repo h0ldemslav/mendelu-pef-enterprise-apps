@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("tickets")
@@ -79,33 +80,27 @@ public class TicketController {
         Ticket ticket = new Ticket();
         request.toTicket(ticket, ticketClass, flight, customer);
 
-        if (!flightService.isTicketClassSeatsAvailable(flight, ticketClass)) {
-            ticket.detachFromRelatedEntities();
-            throw new SeatIsNotAvailableException();
-        }
+        validateSeatsAvailability(flight, ticketClass, ticket);
 
         var ticketPrice = ticket.getPrice();
+        var seatNumber = ticket.getSeatNumber();
 
-        if (ticket.getSeatNumber() == null) {
+        if (seatNumber == null) {
             // Automatically assign the closest available seat
-            ticket.setSeatNumber(flightService.getSeatNumber(flight, ticketClass));
+            final String newSeatNumber = flightService
+                    .getSeatNumber(flight, ticketClass)
+                    // This exception should NOT happen, since seat availability was validated before
+                    .orElseThrow(SeatIsNotAvailableException::new);
+            ticket.setSeatNumber(newSeatNumber);
         } else {
             // Customer selected a custom seat that needs to be validated before assigning
-            var isCustomSeatNumberValid = flightService.isSeatNumberValid(flight, ticketClass, request.getSeatNumber());
-            var isSeatNumberOccupied = flightService.isSeatNumberOccupied(flight, request.getSeatNumber().trim());
-
-            if (!isCustomSeatNumberValid || isSeatNumberOccupied) {
-                ticket.detachFromRelatedEntities();
-                throw new SeatIsNotAvailableException();
-            }
-
-            ticketPrice += ticketService.getTicketExtraPriceForCustomSeat(ticket, ticketClass);
+            validateSeatNumber(flight, ticketClass, seatNumber);
+            ticketPrice += ticketService
+                    .getTicketExtraPriceForCustomSeat(ticket, ticketClass)
+                    .orElseThrow(BadRequestException::new);
         }
 
-        if (!customerService.isCustomerHasEnoughCredit(customer, ticketPrice)) {
-            ticket.detachFromRelatedEntities();
-            throw new NotEnoughCreditException();
-        }
+        validateCustomerCredit(customer, ticket, ticketPrice);
 
         customer.setCredit(customer.getCredit() - ticketPrice);
         ticket.setPrice(ticketPrice);
@@ -120,26 +115,33 @@ public class TicketController {
         );
     }
 
-    @PutMapping(value = "/{id}", produces = "application/json")
+    @PutMapping(value = "/{id}/change_seat_number", produces = "application/json")
     @Valid
-    public ObjectResponse<TicketResponse> updateTicketById(
-            @PathVariable Long id,
-            @RequestBody @Valid TicketRequest request
-    ) {
-        Customer customer = customerService
-                .getCustomerById(request.getCustomerId())
-                .orElseThrow(NotFoundException::new);
-        Flight flight = flightService
-                .getFlightById(request.getFlightId())
-                .orElseThrow(NotFoundException::new);
-        TicketClass ticketClass = TicketClass
-                .getTicketClassByString(request.getTicketClass())
-                .orElseThrow(BadRequestException::new);
+    public ObjectResponse<TicketResponse> changeSeatNumber(@PathVariable Long id, @RequestParam String seatNumber) {
         Ticket ticket = ticketService
                 .getTicketById(id)
                 .orElseThrow(NotFoundException::new);
-        request.toTicket(ticket, ticketClass, flight, customer);
+        TicketClass ticketClass = TicketClass
+                .getTicketClassByString(ticket.getTicketClass())
+                .orElseThrow(BadRequestException::new);
+        Customer customer = ticket.getCustomer();
+        Flight flight = ticket.getFlight();
 
+        validateSeatNumber(flight, ticketClass, seatNumber);
+
+        final double priceForSeatReassignment = ticketService
+                .getTicketExtraPriceForCustomSeat(ticket, ticketClass)
+                .orElseThrow(BadRequestException::new);
+        final double updatedTicketPrice = ticket.getPrice() + priceForSeatReassignment;
+
+        validateCustomerCredit(customer, ticket, priceForSeatReassignment);
+
+        customer.setCredit(customer.getCredit() - priceForSeatReassignment);
+        ticket.setPrice(updatedTicketPrice);
+        ticket.setPriceAfterDiscount(updatedTicketPrice);
+        ticket.setSeatNumber(seatNumber);
+
+        customerService.updateCustomer(customer.getId(), customer);
         ticketService.updateTicket(id, ticket);
 
         return ObjectResponse.of(
@@ -148,43 +150,39 @@ public class TicketController {
         );
     }
 
-    @PutMapping(value = "/{id}/reassign_seat", produces = "application/json")
-    public ObjectResponse<TicketResponse> changeSeatAssignment(@PathVariable Long id, @RequestParam String seatNumber) {
+    @PutMapping(value = "/{id}/upgrade_ticket_class", produces = "application/json")
+    @Valid
+    public ObjectResponse<TicketResponse> upgradeTicketClass(
+            @PathVariable Long id,
+            @RequestParam TicketClass newTicketClass
+    ) {
         Ticket ticket = ticketService
                 .getTicketById(id)
                 .orElseThrow(NotFoundException::new);
-        Customer customer = ticket.getCustomer();
-        Flight flight = ticket.getFlight();
-        if (flight == null) {
-            throw new BadRequestException();
-        }
-
-        TicketClass ticketClass = TicketClass
+        TicketClass oldTicketClass = TicketClass
                 .getTicketClassByString(ticket.getTicketClass())
                 .orElseThrow(BadRequestException::new);
+        Customer customer = ticket.getCustomer();
+        Flight flight = ticket.getFlight();
 
-        if (!flightService.isSeatNumberValid(flight, ticketClass, seatNumber)) {
-            throw new BadRequestException();
-        }
+        validateTicketClass(newTicketClass, oldTicketClass);
+        validateSeatsAvailability(flight, newTicketClass, ticket);
 
-        if (flightService.isSeatNumberOccupied(flight, seatNumber)) {
-            throw new SeatIsNotAvailableException();
-        }
+        final double priceForTicketClassUpgrade = flight.getFareTariff().getPriceByTicketClass(newTicketClass) - ticket.getPrice();
+        final double updatedTicketPrice = ticket.getPrice() + priceForTicketClassUpgrade;
 
-        var priceForSeatReassignment = ticketService.getTicketExtraPriceForCustomSeat(ticket, ticketClass);
-        var isCustomerCreditEnoughForSeat = customerService.isCustomerHasEnoughCredit(
-                customer,
-                priceForSeatReassignment
-        );
+        validateCustomerCredit(customer, ticket, priceForTicketClassUpgrade);
+        customer.setCredit(customer.getCredit() - priceForTicketClassUpgrade);
 
-        if (!isCustomerCreditEnoughForSeat) {
-            throw new NotEnoughCreditException();
-        }
+        ticket.setPrice(updatedTicketPrice);
+        ticket.setPriceAfterDiscount(updatedTicketPrice);
+        ticket.setTicketClass(newTicketClass.name());
 
-        customer.setCredit(customer.getCredit() - priceForSeatReassignment);
-        ticket.setPrice(ticket.getPrice() + priceForSeatReassignment);
-        ticket.setPriceAfterDiscount(ticket.getPrice());
-        ticket.setSeatNumber(seatNumber);
+        final String newSeatNumber = flightService
+                .getSeatNumber(flight, newTicketClass)
+                // This exception should NOT happen, since seat availability was validated before
+                .orElseThrow(SeatIsNotAvailableException::new);
+        ticket.setSeatNumber(newSeatNumber);
 
         customerService.updateCustomer(customer.getId(), customer);
         ticketService.updateTicket(id, ticket);
@@ -199,5 +197,51 @@ public class TicketController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTicketById(@PathVariable Long id) {
         ticketService.deleteTicketById(id);
+    }
+
+    private void validateSeatsAvailability(Flight flight, TicketClass ticketClass, Ticket ticket) throws SeatIsNotAvailableException {
+        if (!flightService.isTicketClassSeatsAvailable(flight, ticketClass)) {
+            ticket.detachFromRelatedEntities();
+            throw new SeatIsNotAvailableException();
+        }
+    }
+    
+    private void validateSeatNumber(Flight flight, TicketClass ticketClass, String seatNumber) throws SeatIsNotAvailableException {
+        var seatNumberTrimmed = seatNumber.trim();
+        var isSeatNumberValid = flightService.isSeatNumberValid(flight, ticketClass, seatNumberTrimmed);
+        var isSeatNumberOccupied = flightService.isSeatNumberOccupied(flight, seatNumberTrimmed);
+
+        if (!isSeatNumberValid || isSeatNumberOccupied) {
+            throw new SeatIsNotAvailableException();
+        }
+    }
+
+    private void validateCustomerCredit(Customer customer, Ticket ticket, double ticketPrice) {
+        if (!customerService.isCustomerHasEnoughCredit(customer, ticketPrice)) {
+            ticket.detachFromRelatedEntities();
+            throw new NotEnoughCreditException();
+        }
+    }
+
+    private void validateTicketClass(TicketClass newTicketClass, TicketClass oldTicketClass) {
+        var conflictException = new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "Ticket class must not be lower than or equal to the current ticket class."
+        );
+
+        if (newTicketClass.equals(oldTicketClass)) {
+            throw conflictException;
+        }
+
+        switch (oldTicketClass) {
+            case Business:
+                // Business is the highest class, so one cannot upgrade anymore
+                throw conflictException;
+            case Premium:
+                // Downgrade is not possible
+                if (newTicketClass == TicketClass.Economy) {
+                    throw conflictException;
+                }
+        }
     }
 }

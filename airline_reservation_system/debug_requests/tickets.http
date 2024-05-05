@@ -13,28 +13,19 @@ Content-Type: application/json
 {
   "number": "0008386672215",
   "class": "Economy",
-  "seat_number": "53A",
+  "seat_number": "12A",
   "passenger_full_name": "Paul Smith",
   "flightId": 9999,
   "customerId": "35645ea7-2b38-430d-aab8-f72302cdc2c8"
 }
 
-### Update ticket by id
-PUT http://localhost:8090/tickets/5169
+### Change seat number by id
+PUT http://localhost:8090/tickets/5280/change_seat_number?seatNumber=2A
 Content-Type: application/json
 
-{
-  "number": "0008386672215",
-  "class": "Economy",
-  "seat_number": "53A",
-  "passenger_full_name": "Paul Johnathan Smith",
-  "flightId": 9999,
-  "customerId": "35645ea7-2b38-430d-aab8-f72302cdc2c8"
-}
-
-### Reassign seat number
-PUT http://localhost:8090/tickets/5180/reassign_seat?seatNumber=70F
+### Upgrade ticket class by id
+PUT http://localhost:8090/tickets/5283/upgrade_ticket_class?newTicketClass=Economy
 Content-Type: application/json
 
 ### Delete ticket by id
-DELETE http://localhost:8090/tickets/5169
+DELETE http://localhost:8090/tickets/5281
