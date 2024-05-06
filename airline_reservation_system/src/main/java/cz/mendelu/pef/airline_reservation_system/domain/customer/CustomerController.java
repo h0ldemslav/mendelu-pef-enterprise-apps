@@ -55,6 +55,7 @@ public class CustomerController {
     }
 
     @PostMapping(value = "", produces = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
     @Valid
     public ObjectResponse<CustomerResponse> createCustomer(@RequestBody @Valid CustomerRequest request) {
         Customer customer = new Customer();
