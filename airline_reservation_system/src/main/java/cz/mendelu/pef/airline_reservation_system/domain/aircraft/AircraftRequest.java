@@ -3,9 +3,11 @@ package cz.mendelu.pef.airline_reservation_system.domain.aircraft;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class AircraftRequest {
 
     @NotEmpty

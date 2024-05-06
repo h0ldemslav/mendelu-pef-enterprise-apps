@@ -2,9 +2,11 @@ package cz.mendelu.pef.airline_reservation_system.domain.airport;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class AirportRequest {
 
     @NotEmpty

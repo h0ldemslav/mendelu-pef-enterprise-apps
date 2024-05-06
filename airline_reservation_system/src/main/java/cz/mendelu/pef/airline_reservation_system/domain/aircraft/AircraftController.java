@@ -44,6 +44,7 @@ public class AircraftController {
     }
 
     @PostMapping(value = "", produces = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
     @Valid
     public ObjectResponse<AircraftResponse> createAircraft(@RequestBody @Valid AircraftRequest request) {
         Aircraft aircraft = new Aircraft();

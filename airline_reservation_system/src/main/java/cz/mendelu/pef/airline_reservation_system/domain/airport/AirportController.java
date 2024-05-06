@@ -54,6 +54,7 @@ public class AirportController {
     }
 
     @PostMapping(value = "", produces = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
     @Valid
     public ObjectResponse<AirportResponse> createAirport(@RequestBody @Valid AirportRequest request) {
         Airport airport = new Airport();

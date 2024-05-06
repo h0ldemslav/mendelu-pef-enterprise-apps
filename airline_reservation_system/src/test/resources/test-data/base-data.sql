@@ -1,6 +1,8 @@
-INSERT INTO public.aircraft VALUES (1, 'SI0O6', 'Airbus A380', 3, 16, 125);
+INSERT INTO public.aircraft VALUES (1, 'SI006', 'Airbus A380', 3, 16, 125);
+INSERT INTO public.aircraft VALUES (2, 'BK007', 'Boeing 737', 6, 18, 180);
 INSERT INTO public.airport VALUES (1, 'BQK', 'Brunswick Golden Isles Airport', 'US', 'US-GA', 'Brunswick', 'KBQK');
 INSERT INTO public.airport VALUES (2, 'TKD', 'Takoradi Airport', 'GH', 'GH-WP', 'Sekondi-Takoradi', 'DGTK');
+INSERT INTO public.airport VALUES (3, 'DEB', 'Debrecen International Airport', 'HU', 'HU-HB', 'Debrecen', 'LHDC');
 
 -- `id` is the last column in `customer` table!
 INSERT INTO public.customer
@@ -42,3 +44,5 @@ INSERT INTO public.ticket VALUES (3, '0001901266072', 'Economy', 737.0, 0.0, 737
                                   2, 'da8d38a8-28a7-4740-8096-f0197ebabd5c');
 
 SELECT setval(pg_get_serial_sequence('ticket', 'id'), 4);
+SELECT setval(pg_get_serial_sequence('aircraft', 'id'), 3);
+SELECT setval(pg_get_serial_sequence('airport', 'id'), 4);
