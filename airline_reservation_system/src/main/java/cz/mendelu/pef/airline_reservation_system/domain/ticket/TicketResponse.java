@@ -48,9 +48,11 @@ public class TicketResponse {
     @NotNull
     private OffsetDateTime arrival;
 
+    @JsonProperty("flight_id")
     private Long flightId;
 
     @NotNull
+    @JsonProperty("customer_id")
     private UUID customerId;
 
     TicketResponse(Ticket ticket) {
