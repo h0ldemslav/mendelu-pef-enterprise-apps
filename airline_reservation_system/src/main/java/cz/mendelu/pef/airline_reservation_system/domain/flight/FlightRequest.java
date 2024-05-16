@@ -9,11 +9,13 @@ import cz.mendelu.pef.airline_reservation_system.domain.fare_tariff.FareTariffSe
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.NotFoundException;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.OffsetDateTime;
 
 @Data
+@AllArgsConstructor
 public class FlightRequest {
 
     @NotEmpty

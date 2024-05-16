@@ -1,13 +1,18 @@
 package cz.mendelu.pef.airline_reservation_system.domain.flight;
 
 import cz.mendelu.pef.airline_reservation_system.domain.aircraft.Aircraft;
+import cz.mendelu.pef.airline_reservation_system.domain.fare_tariff.FareTariff;
 import cz.mendelu.pef.airline_reservation_system.domain.ticket.Ticket;
 import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
 import java.util.stream.IntStream;
 
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class FlightUnitTest {
 
@@ -215,5 +220,67 @@ public class FlightUnitTest {
         assertFalse(flightService.isSeatNumberValid(flight, TicketClass.Business, "11111111A"));
         assertFalse(flightService.isSeatNumberValid(flight, TicketClass.Business, "4F4F4F"));
         assertFalse(flightService.isSeatNumberValid(flight, TicketClass.Business, "4X"));
+    }
+
+    @Test
+    public void testCancelFlight() {
+        // given
+        var flightRepository = mock(FlightRepository.class);
+        var flightService = new FlightService(flightRepository);
+
+        var aircraft = new Aircraft();
+        aircraft.setBusinessCapacity(12);
+        aircraft.setPremiumCapacity(50);
+        aircraft.setEconomyCapacity(90);
+
+        var fareTariff = new FareTariff();
+        fareTariff.setBusinessPrice(5513.0);
+        fareTariff.setPremiumPrice(1326.0);
+        fareTariff.setEconomyPrice(624.0);
+
+        var flight = new Flight();
+        flight.setId(1L);
+        flight.setAircraft(aircraft);
+        flight.setFareTariff(fareTariff);
+
+        var ticket1 = new Ticket();
+        ticket1.setId(1L);
+        ticket1.setTicketClass("Business");
+        ticket1.setPrice(fareTariff.getPremiumPrice());
+        ticket1.setDiscount(0.0);
+        ticket1.setPriceAfterDiscount(ticket1.getPrice());
+
+        var ticket2 = new Ticket();
+        ticket2.setId(2L);
+        ticket2.setTicketClass("Premium");
+        ticket2.setPrice(fareTariff.getBusinessPrice());
+        ticket2.setDiscount(0.0);
+        ticket2.setPriceAfterDiscount(ticket2.getPrice());
+
+        Set<Ticket> tickets = Set.of(ticket1, ticket2);
+        flight.setTickets(tickets);
+
+        // when
+        var ticketDiscountPercentage = 10.0;
+
+        flightService.cancelFlight(flight, ticketDiscountPercentage);
+        flightService.updateFlight(flight.getId(), flight);
+
+        // then
+        verify(flightRepository).save(flight);
+
+        assertThat(flight.getStatus(), is("Cancelled"));
+
+        var ticket1NewDiscount = ticket1.getPrice() * (ticketDiscountPercentage / 100);
+        var ticket1NewPriceAfterDiscount = ticket1.getPrice() - ticket1NewDiscount;
+
+        assertEquals(ticket1.getDiscount(), ticket1NewDiscount);
+        assertEquals(ticket1.getPriceAfterDiscount(), ticket1NewPriceAfterDiscount);
+
+        var ticket2NewDiscount = ticket2.getPrice() * (ticketDiscountPercentage / 100);
+        var ticket2NewPriceAfterDiscount = ticket2.getPrice() - ticket2NewDiscount;
+
+        assertEquals(ticket2.getDiscount(), ticket2NewDiscount);
+        assertEquals(ticket2.getPriceAfterDiscount(), ticket2NewPriceAfterDiscount);
     }
 }

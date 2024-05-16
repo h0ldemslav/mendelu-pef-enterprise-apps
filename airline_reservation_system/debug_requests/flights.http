@@ -38,5 +38,8 @@ Content-Type: application/json
   "fare_tariff_id": 1
 }
 
+### Cancel flight by id
+PUT http://localhost:8090/flights/cancel/9999?ticket_discount_percentage=10
+
 ### Delete flight by id
 DELETE http://localhost:8090/flights/5010

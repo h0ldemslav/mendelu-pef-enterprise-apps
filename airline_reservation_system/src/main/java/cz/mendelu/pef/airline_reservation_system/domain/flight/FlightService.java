@@ -204,4 +204,25 @@ public class FlightService {
 
         return ticketWithSeatNumber.isPresent();
     }
+
+    public void cancelFlight(Flight flight, Double ticketDiscountPercentage) {
+        if (flight != null) {
+            flight.setStatus("Cancelled");
+
+            if (ticketDiscountPercentage != null
+                    && (ticketDiscountPercentage > 0.0 && ticketDiscountPercentage <= 100.0)) {
+                // Apply discount due to flight cancellation
+                var tickets = flight.getTickets();
+
+                for (Ticket t : tickets) {
+                    var ticketPrice = t.getPrice();
+                    var discountPercentage = ticketDiscountPercentage / 100.0;
+                    var discountAmount = ticketPrice * discountPercentage;
+
+                    t.setDiscount(discountAmount);
+                    t.setPriceAfterDiscount(ticketPrice - discountAmount);
+                }
+            }
+        }
+    }
 }

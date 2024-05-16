@@ -67,6 +67,7 @@ public class FlightController {
     }
 
     @PostMapping(value = "", produces = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
     @Valid
     public ObjectResponse<FlightResponse> createFlight(@RequestBody @Valid FlightRequest request) {
         Flight flight = new Flight();
@@ -91,6 +92,24 @@ public class FlightController {
                 .orElseThrow(NotFoundException::new);
         request.toFlight(flight, aircraftService, airportService, fareTariffService);
 
+        flightService.updateFlight(id, flight);
+
+        return ObjectResponse.of(
+                flight,
+                FlightResponse::new
+        );
+    }
+
+    @PutMapping(value = "/cancel/{id}", produces = "application/json")
+    @Valid
+    public ObjectResponse<FlightResponse> cancelFlight(
+            @PathVariable Long id,
+            @RequestParam(name = "ticket_discount_percentage") Double ticketDiscountPercentage
+    ) {
+        Flight flight = flightService
+                .getFlightById(id)
+                .orElseThrow(NotFoundException::new);
+        flightService.cancelFlight(flight, ticketDiscountPercentage);
         flightService.updateFlight(id, flight);
 
         return ObjectResponse.of(

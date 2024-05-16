@@ -46,3 +46,5 @@ INSERT INTO public.ticket VALUES (3, '0001901266072', 'Economy', 737.0, 0.0, 737
 SELECT setval(pg_get_serial_sequence('ticket', 'id'), 4);
 SELECT setval(pg_get_serial_sequence('aircraft', 'id'), 3);
 SELECT setval(pg_get_serial_sequence('airport', 'id'), 4);
+SELECT setval(pg_get_serial_sequence('fare_tariff', 'id'), 4);
+SELECT setval(pg_get_serial_sequence('flight', 'id'), 3);
