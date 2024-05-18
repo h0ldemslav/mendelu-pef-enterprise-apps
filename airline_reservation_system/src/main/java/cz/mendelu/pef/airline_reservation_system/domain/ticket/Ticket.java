@@ -27,7 +27,7 @@ public class Ticket {
     private String number;
 
     @Column(name = "class")
-    @NotEmpty
+    @NotNull
     private TicketClass ticketClass;
 
     @NotNull

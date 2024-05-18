@@ -74,37 +74,18 @@ public class TicketController {
         Flight flight = flightService
                 .getFlightById(request.getFlightId())
                 .orElseThrow(NotFoundException::new);
-        TicketClass ticketClass = TicketClass
-                .getTicketClassByString(request.getTicketClass())
-                .orElseThrow(BadRequestException::new);
         Ticket ticket = new Ticket();
-        request.toTicket(ticket, ticketClass, flight, customer);
+        request.toTicket(ticket, flight, customer);
 
-        validateSeatsAvailability(flight, ticketClass, ticket);
-
-        var ticketPrice = ticket.getPrice();
-        var seatNumber = ticket.getSeatNumber();
-
-        if (seatNumber == null) {
-            // Automatically assign the closest available seat
-            final String newSeatNumber = flightService
-                    .getSeatNumber(flight, ticketClass)
-                    // This exception should NOT happen, since seat availability was validated before
-                    .orElseThrow(SeatIsNotAvailableException::new);
-            ticket.setSeatNumber(newSeatNumber);
-        } else {
-            // Customer selected a custom seat that needs to be validated before assigning
-            validateSeatNumber(flight, ticketClass, seatNumber);
-            ticketPrice += ticketService
-                    .getTicketExtraPriceForCustomSeat(ticket, ticketClass)
-                    .orElseThrow(BadRequestException::new);
+        try {
+            ticketService.assignSeatNumber(flight, ticket);
+        } catch (SeatIsNotAvailableException e) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "No available seat", e);
+        } catch (MissingFlightException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid flight", e);
+        } catch (NotEnoughCreditException e) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer has not enough credit", e);
         }
-
-        validateCustomerCredit(customer, ticket, ticketPrice);
-
-        customer.setCredit(customer.getCredit() - ticketPrice);
-        ticket.setPrice(ticketPrice);
-        ticket.setPriceAfterDiscount(ticketPrice);
 
         ticketService.createTicket(ticket);
         customerService.updateCustomer(customer.getId(), customer);
@@ -121,25 +102,17 @@ public class TicketController {
         Ticket ticket = ticketService
                 .getTicketById(id)
                 .orElseThrow(NotFoundException::new);
-        TicketClass ticketClass = TicketClass
-                .getTicketClassByString(ticket.getTicketClass())
-                .orElseThrow(BadRequestException::new);
         Customer customer = ticket.getCustomer();
-        Flight flight = ticket.getFlight();
 
-        validateSeatNumber(flight, ticketClass, seatNumber);
-
-        final double priceForSeatReassignment = ticketService
-                .getTicketExtraPriceForCustomSeat(ticket, ticketClass)
-                .orElseThrow(BadRequestException::new);
-        final double updatedTicketPrice = ticket.getPrice() + priceForSeatReassignment;
-
-        validateCustomerCredit(customer, ticket, priceForSeatReassignment);
-
-        customer.setCredit(customer.getCredit() - priceForSeatReassignment);
-        ticket.setPrice(updatedTicketPrice);
-        ticket.setPriceAfterDiscount(updatedTicketPrice);
-        ticket.setSeatNumber(seatNumber);
+        try {
+            ticketService.changeSeatNumber(ticket, seatNumber);
+        } catch (SeatIsNotAvailableException e) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "No available seat", e);
+        } catch (MissingFlightException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid flight", e);
+        } catch (NotEnoughCreditException e) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer has not enough credit", e);
+        }
 
         customerService.updateCustomer(customer.getId(), customer);
         ticketService.updateTicket(id, ticket);
@@ -159,30 +132,17 @@ public class TicketController {
         Ticket ticket = ticketService
                 .getTicketById(id)
                 .orElseThrow(NotFoundException::new);
-        TicketClass oldTicketClass = TicketClass
-                .getTicketClassByString(ticket.getTicketClass())
-                .orElseThrow(BadRequestException::new);
         Customer customer = ticket.getCustomer();
-        Flight flight = ticket.getFlight();
 
-        validateTicketClass(newTicketClass, oldTicketClass);
-        validateSeatsAvailability(flight, newTicketClass, ticket);
-
-        final double priceForTicketClassUpgrade = flight.getFareTariff().getPriceByTicketClass(newTicketClass) - ticket.getPrice();
-        final double updatedTicketPrice = ticket.getPrice() + priceForTicketClassUpgrade;
-
-        validateCustomerCredit(customer, ticket, priceForTicketClassUpgrade);
-        customer.setCredit(customer.getCredit() - priceForTicketClassUpgrade);
-
-        ticket.setPrice(updatedTicketPrice);
-        ticket.setPriceAfterDiscount(updatedTicketPrice);
-        ticket.setTicketClass(newTicketClass.name());
-
-        final String newSeatNumber = flightService
-                .getSeatNumber(flight, newTicketClass)
-                // This exception should NOT happen, since seat availability was validated before
-                .orElseThrow(SeatIsNotAvailableException::new);
-        ticket.setSeatNumber(newSeatNumber);
+        try {
+            ticketService.upgradeTicketClass(ticket, newTicketClass);
+        } catch (InvalidTicketClassException e) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getDetail(), e);
+        } catch (SeatIsNotAvailableException e) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "No available seat", e);
+        } catch (NotEnoughCreditException e) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer has not enough credit", e);
+        }
 
         customerService.updateCustomer(customer.getId(), customer);
         ticketService.updateTicket(id, ticket);
@@ -197,51 +157,5 @@ public class TicketController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTicketById(@PathVariable Long id) {
         ticketService.deleteTicketById(id);
-    }
-
-    private void validateSeatsAvailability(Flight flight, TicketClass ticketClass, Ticket ticket) throws SeatIsNotAvailableException {
-        if (!flightService.isTicketClassSeatsAvailable(flight, ticketClass)) {
-            ticket.detachFromRelatedEntities();
-            throw new SeatIsNotAvailableException();
-        }
-    }
-    
-    private void validateSeatNumber(Flight flight, TicketClass ticketClass, String seatNumber) throws SeatIsNotAvailableException {
-        var seatNumberTrimmed = seatNumber.trim();
-        var isSeatNumberValid = flightService.isSeatNumberValid(flight, ticketClass, seatNumberTrimmed);
-        var isSeatNumberOccupied = flightService.isSeatNumberOccupied(flight, seatNumberTrimmed);
-
-        if (!isSeatNumberValid || isSeatNumberOccupied) {
-            throw new SeatIsNotAvailableException();
-        }
-    }
-
-    private void validateCustomerCredit(Customer customer, Ticket ticket, double ticketPrice) {
-        if (!customerService.isCustomerHasEnoughCredit(customer, ticketPrice)) {
-            ticket.detachFromRelatedEntities();
-            throw new NotEnoughCreditException();
-        }
-    }
-
-    private void validateTicketClass(TicketClass newTicketClass, TicketClass oldTicketClass) {
-        var conflictException = new ResponseStatusException(
-                HttpStatus.CONFLICT,
-                "Ticket class must not be lower than or equal to the current ticket class."
-        );
-
-        if (newTicketClass.equals(oldTicketClass)) {
-            throw conflictException;
-        }
-
-        switch (oldTicketClass) {
-            case Business:
-                // Business is the highest class, so one cannot upgrade anymore
-                throw conflictException;
-            case Premium:
-                // Downgrade is not possible
-                if (newTicketClass == TicketClass.Economy) {
-                    throw conflictException;
-                }
-        }
     }
 }

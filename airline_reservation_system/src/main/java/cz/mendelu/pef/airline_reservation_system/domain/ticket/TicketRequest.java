@@ -19,7 +19,7 @@ public class TicketRequest {
     private String number;
 
     @JsonProperty("class")
-    @NotEmpty
+    @NotNull
     private TicketClass ticketClass;
 
     @JsonProperty("passenger_full_name")

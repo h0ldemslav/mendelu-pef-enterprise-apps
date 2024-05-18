@@ -20,7 +20,7 @@ public class TicketResponse {
     private String number;
 
     @JsonProperty("class")
-    @NotEmpty
+    @NotNull
     private TicketClass ticketClass;
 
     @NotNull

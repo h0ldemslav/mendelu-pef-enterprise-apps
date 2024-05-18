@@ -23,7 +23,7 @@ public class TicketClassConvertor implements AttributeConverter<TicketClass, Str
         try {
             ticketClass = TicketClass.valueOf(s);
         } catch (IllegalArgumentException e) {
-            throw new InvalidTicketClassException();
+            throw new InvalidTicketClassException("Unsupported ticket class value");
         }
 
         return ticketClass;

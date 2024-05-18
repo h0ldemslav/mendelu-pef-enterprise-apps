@@ -1,5 +1,6 @@
 package cz.mendelu.pef.airline_reservation_system.domain.customer;
 
+import cz.mendelu.pef.airline_reservation_system.utils.exceptions.NotEnoughCreditException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -41,5 +42,13 @@ public class CustomerService {
 
     public boolean isCustomerHasEnoughCredit(Customer customer, double amountOfMoney) {
         return customer.getCredit() >= amountOfMoney;
+    }
+
+    public void chargeCustomerCredit(Customer customer, Double amountOfMoney) {
+        if (!isCustomerHasEnoughCredit(customer, amountOfMoney)) {
+            throw new NotEnoughCreditException();
+        }
+
+        customer.setCredit(customer.getCredit() - amountOfMoney);
     }
 }
