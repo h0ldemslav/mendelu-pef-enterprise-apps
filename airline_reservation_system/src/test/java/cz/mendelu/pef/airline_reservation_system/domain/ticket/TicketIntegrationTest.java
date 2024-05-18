@@ -1,5 +1,6 @@
 package cz.mendelu.pef.airline_reservation_system.domain.ticket;
 
+import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
@@ -97,7 +98,7 @@ public class TicketIntegrationTest {
     public void testCreateTicket() {
         final TicketRequest request = new TicketRequest(
                 "0004099267192",
-                "Premium",
+                TicketClass.Premium,
                 "John Smith",
                 null,
                 1L,
@@ -137,7 +138,7 @@ public class TicketIntegrationTest {
     public void testCreateTicket_CustomerNotFound() {
         final TicketRequest request = new TicketRequest(
                 "0004099267192",
-                "Premium",
+                TicketClass.Premium,
                 "John Smith",
                 null,
                 1L,
@@ -157,7 +158,7 @@ public class TicketIntegrationTest {
     public void testCreateTicket_FlightNotFound() {
         final TicketRequest request = new TicketRequest(
                 "0004099267192",
-                "Premium",
+                TicketClass.Premium,
                 "John Smith",
                 null,
                 999L,
@@ -177,7 +178,7 @@ public class TicketIntegrationTest {
     public void testCreateTicket_WithCustomSeat() {
         final TicketRequest request = new TicketRequest(
                 "0004099267192",
-                "Premium",
+                TicketClass.Premium,
                 "Bob Smith",
                 "2F",
                 1L,
@@ -220,7 +221,7 @@ public class TicketIntegrationTest {
     public void testCreateTicket_NoAvailableSeat() {
         final TicketRequest request1 = new TicketRequest(
                 "0007799652613",
-                "Business",
+                TicketClass.Business,
                 "Bob Rope",
                 null,
                 1L,
@@ -228,7 +229,7 @@ public class TicketIntegrationTest {
         );
         final TicketRequest request2 = new TicketRequest(
                 "0001241598283",
-                "Business",
+                TicketClass.Business,
                 "Casey Rope",
                 null,
                 1L,
@@ -236,7 +237,7 @@ public class TicketIntegrationTest {
         );
         final TicketRequest request3 = new TicketRequest(
                 "0004099267192",
-                "Business",
+                TicketClass.Business,
                 "John Rope",
                 null,
                 1L,
@@ -272,7 +273,7 @@ public class TicketIntegrationTest {
     public void testCreateTicket_InvalidCustomSeat() {
         final TicketRequest request = new TicketRequest(
                 "0004099267192",
-                "Premium",
+                TicketClass.Premium,
                 "Helen Smith",
                 // Invalid custom seat number
                 "20X",
@@ -293,7 +294,7 @@ public class TicketIntegrationTest {
     public void testCreateTicket_SeatIsOccupied() {
         final TicketRequest request = new TicketRequest(
                 "0004099267192",
-                "Premium",
+                TicketClass.Premium,
                 "Helen Smith",
                 // Valid custom seat number, but it's already occupied by other passenger
                 "2A",
@@ -314,7 +315,7 @@ public class TicketIntegrationTest {
     public void testCreateTicket_NotEnoughCustomerCredit() {
         final TicketRequest request = new TicketRequest(
                 "0004099267192",
-                "Premium",
+                TicketClass.Premium,
                 "Helen Doe",
                 null,
                 2L,
@@ -399,7 +400,7 @@ public class TicketIntegrationTest {
     public void testChangeSeatNumber_SeatIsOccupied() {
         final TicketRequest request = new TicketRequest(
                 "0008024034546",
-                "Premium",
+                TicketClass.Premium,
                 "Jain Smith",
                 "2F",
                 1L,
@@ -432,7 +433,7 @@ public class TicketIntegrationTest {
         IntStream.range(0, 15).forEach(i -> {
             final TicketRequest request = new TicketRequest(
                     "0008024034546",
-                    "Premium",
+                    TicketClass.Premium,
                     "Jain Smith",
                     null,
                     1L,
@@ -522,14 +523,14 @@ public class TicketIntegrationTest {
                 .when()
                 .put("/tickets/{id}/upgrade_ticket_class")
                 .then()
-                .statusCode(409);
+                .statusCode(422);
     }
 
     @Test
     public void testUpgradeTicketClass_NoAvailableSeat() {
         final TicketRequest request1 = new TicketRequest(
                 "0000456021522",
-                "Business",
+                TicketClass.Business,
                 "Jain Smith",
                 null,
                 1L,
@@ -537,7 +538,7 @@ public class TicketIntegrationTest {
         );
         final TicketRequest request2 = new TicketRequest(
                 "0002920841694",
-                "Business",
+                TicketClass.Business,
                 "Rose Smith",
                 null,
                 1L,
