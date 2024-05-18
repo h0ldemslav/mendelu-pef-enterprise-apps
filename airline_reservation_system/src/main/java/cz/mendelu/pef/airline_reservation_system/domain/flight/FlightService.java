@@ -84,7 +84,7 @@ public class FlightService {
         final List<String> occupiedSeatNumbers = flight
                 .getTickets()
                 .stream()
-                .filter(t -> Objects.equals(t.getTicketClass(), ticketClass.name()) && t.getSeatNumber() != null)
+                .filter(t -> Objects.equals(t.getTicketClass(), ticketClass) && t.getSeatNumber() != null)
                 .map(Ticket::getSeatNumber)
                 .toList();
         final List<String> allowedSeatLetters = List.of("A", "B", "C", "D", "E", "F");
@@ -131,7 +131,7 @@ public class FlightService {
 
         var tickets = flight.getTickets()
                 .stream()
-                .filter(t -> t.getId() != null && Objects.equals(t.getTicketClass(), ticketClass.name()))
+                .filter(t -> t.getId() != null && Objects.equals(t.getTicketClass(), ticketClass))
                 .toList();
 
         return tickets.size() < aircraft.getCapacityByTicketClass(ticketClass);

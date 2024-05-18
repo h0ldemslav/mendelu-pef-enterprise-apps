@@ -20,7 +20,7 @@ public class TicketRequest {
 
     @JsonProperty("class")
     @NotEmpty
-    private String ticketClass;
+    private TicketClass ticketClass;
 
     @JsonProperty("passenger_full_name")
     @NotEmpty
@@ -34,11 +34,16 @@ public class TicketRequest {
     @NotNull
     private UUID customerId;
 
-    public void toTicket(Ticket ticket, TicketClass ticketClass, Flight flight, Customer customer) {
+    public void toTicket(Ticket ticket, Flight flight, Customer customer) {
         ticket.setNumber(this.number);
-        ticket.setTicketClass(ticketClass.name());
+        ticket.setTicketClass(this.ticketClass);
 
-        Double price = ticket.getPrice() == null ? flight.getFareTariff().getPriceByTicketClass(ticketClass) : ticket.getPrice();
+        // Ticket price can include a fee for custom seat,
+        // so that is why `flight.getFareTariff().getPriceByTicketClass(ticketClass)` is not by default
+        // Otherwise it would override the price with fee (if so)
+        Double price = ticket.getPrice() == null
+                ? flight.getFareTariff().getPriceByTicketClass(this.ticketClass)
+                : ticket.getPrice();
         ticket.setPrice(price);
 
         Double discount = 0.0;

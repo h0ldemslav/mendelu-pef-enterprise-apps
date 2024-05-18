@@ -2,6 +2,7 @@ package cz.mendelu.pef.airline_reservation_system.domain.ticket;
 
 import cz.mendelu.pef.airline_reservation_system.domain.customer.Customer;
 import cz.mendelu.pef.airline_reservation_system.domain.flight.Flight;
+import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -27,7 +28,7 @@ public class Ticket {
 
     @Column(name = "class")
     @NotEmpty
-    private String ticketClass;
+    private TicketClass ticketClass;
 
     @NotNull
     @Positive

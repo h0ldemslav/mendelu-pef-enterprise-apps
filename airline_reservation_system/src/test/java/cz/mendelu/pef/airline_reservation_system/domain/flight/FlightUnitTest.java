@@ -56,7 +56,7 @@ public class FlightUnitTest {
         IntStream.range(0, 3).forEach(i -> {
             var ticket = new Ticket();
             ticket.setId(Integer.toUnsignedLong(i));
-            ticket.setTicketClass(TicketClass.Business.name());
+            ticket.setTicketClass(TicketClass.Business);
             ticket.setSeatNumber(flightService.getSeatNumber(flight, TicketClass.Business).orElseThrow());
 
             flight.getTickets().add(ticket);
@@ -64,7 +64,7 @@ public class FlightUnitTest {
         IntStream.range(0, 6).forEach(i -> {
             var ticket = new Ticket();
             ticket.setId(Integer.toUnsignedLong(i));
-            ticket.setTicketClass(TicketClass.Premium.name());
+            ticket.setTicketClass(TicketClass.Premium);
             ticket.setSeatNumber(flightService.getSeatNumber(flight, TicketClass.Premium).orElseThrow());
 
             flight.getTickets().add(ticket);
@@ -72,7 +72,7 @@ public class FlightUnitTest {
         IntStream.range(0, 50).forEach(i -> {
             var ticket = new Ticket();
             ticket.setId(Integer.toUnsignedLong(i));
-            ticket.setTicketClass(TicketClass.Economy.name());
+            ticket.setTicketClass(TicketClass.Economy);
             ticket.setSeatNumber(flightService.getSeatNumber(flight, TicketClass.Economy).orElseThrow());
 
             flight.getTickets().add(ticket);
@@ -104,21 +104,21 @@ public class FlightUnitTest {
         IntStream.range(0, 2).forEach(i -> {
             var ticket = new Ticket();
             ticket.setId(Integer.toUnsignedLong(i));
-            ticket.setTicketClass(TicketClass.Business.name());
+            ticket.setTicketClass(TicketClass.Business);
 
             flight.getTickets().add(ticket);
         });
         IntStream.range(0, 10).forEach(i -> {
             var ticket = new Ticket();
             ticket.setId(Integer.toUnsignedLong(i));
-            ticket.setTicketClass(TicketClass.Premium.name());
+            ticket.setTicketClass(TicketClass.Premium);
 
             flight.getTickets().add(ticket);
         });
         IntStream.range(0, 50).forEach(i -> {
             var ticket = new Ticket();
             ticket.setId(Integer.toUnsignedLong(i));
-            ticket.setTicketClass(TicketClass.Economy.name());
+            ticket.setTicketClass(TicketClass.Economy);
 
             flight.getTickets().add(ticket);
         });
@@ -144,21 +144,21 @@ public class FlightUnitTest {
         IntStream.range(0, 12).forEach(i -> {
             var ticket = new Ticket();
             ticket.setId(Integer.toUnsignedLong(i));
-            ticket.setTicketClass(TicketClass.Business.name());
+            ticket.setTicketClass(TicketClass.Business);
 
             flight.getTickets().add(ticket);
         });
         IntStream.range(0, 50).forEach(i -> {
             var ticket = new Ticket();
             ticket.setId(Integer.toUnsignedLong(i));
-            ticket.setTicketClass(TicketClass.Premium.name());
+            ticket.setTicketClass(TicketClass.Premium);
 
             flight.getTickets().add(ticket);
         });
         IntStream.range(0, 90).forEach(i -> {
             var ticket = new Ticket();
             ticket.setId(Integer.toUnsignedLong(i));
-            ticket.setTicketClass(TicketClass.Economy.name());
+            ticket.setTicketClass(TicketClass.Economy);
 
             flight.getTickets().add(ticket);
         });
@@ -245,14 +245,14 @@ public class FlightUnitTest {
 
         var ticket1 = new Ticket();
         ticket1.setId(1L);
-        ticket1.setTicketClass("Business");
+        ticket1.setTicketClass(TicketClass.Business);
         ticket1.setPrice(fareTariff.getPremiumPrice());
         ticket1.setDiscount(0.0);
         ticket1.setPriceAfterDiscount(ticket1.getPrice());
 
         var ticket2 = new Ticket();
         ticket2.setId(2L);
-        ticket2.setTicketClass("Premium");
+        ticket2.setTicketClass(TicketClass.Premium);
         ticket2.setPrice(fareTariff.getBusinessPrice());
         ticket2.setDiscount(0.0);
         ticket2.setPriceAfterDiscount(ticket2.getPrice());
