@@ -98,7 +98,10 @@ public class TicketController {
 
     @PutMapping(value = "/{id}/change_seat_number", produces = "application/json")
     @Valid
-    public ObjectResponse<TicketResponse> changeSeatNumber(@PathVariable Long id, @RequestParam String seatNumber) {
+    public ObjectResponse<TicketResponse> changeSeatNumber(
+            @PathVariable Long id,
+            @RequestParam(name = "seat_number") String seatNumber
+    ) {
         Ticket ticket = ticketService
                 .getTicketById(id)
                 .orElseThrow(NotFoundException::new);
@@ -127,7 +130,7 @@ public class TicketController {
     @Valid
     public ObjectResponse<TicketResponse> upgradeTicketClass(
             @PathVariable Long id,
-            @RequestParam TicketClass newTicketClass
+            @RequestParam(name = "new_ticket_class") TicketClass newTicketClass
     ) {
         Ticket ticket = ticketService
                 .getTicketById(id)
@@ -143,6 +146,42 @@ public class TicketController {
         } catch (NotEnoughCreditException e) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer has not enough credit", e);
         }
+
+        customerService.updateCustomer(customer.getId(), customer);
+        ticketService.updateTicket(id, ticket);
+
+        return ObjectResponse.of(
+                ticket,
+                TicketResponse::new
+        );
+    }
+
+    @PutMapping(value = "/{id}/transfer", produces = "application/json")
+    @Valid
+    public ObjectResponse<TicketResponse> transferTicketToOtherFlight(
+            @PathVariable Long id,
+            @RequestParam(name = "flight_id") Long flightId
+    ) {
+        Ticket ticket = ticketService
+                .getTicketById(id)
+                .orElseThrow(NotFoundException::new);
+        Flight newFlight = flightService
+                .getFlightById(flightId)
+                .orElseThrow(NotFoundException::new);
+
+        try {
+            ticketService.transferTicketToOtherFlight(ticket, newFlight);
+        } catch (InvalidTransferInformationException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getDetail(), e);
+        } catch (SeatIsNotAvailableException e) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "No available seat", e);
+        } catch (MissingFlightException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid flight", e);
+        } catch (NotEnoughCreditException e) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer has not enough credit", e);
+        }
+
+        Customer customer = ticket.getCustomer();
 
         customerService.updateCustomer(customer.getId(), customer);
         ticketService.updateTicket(id, ticket);

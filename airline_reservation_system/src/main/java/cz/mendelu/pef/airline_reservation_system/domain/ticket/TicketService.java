@@ -5,12 +5,14 @@ import cz.mendelu.pef.airline_reservation_system.domain.flight.Flight;
 import cz.mendelu.pef.airline_reservation_system.domain.flight.FlightService;
 import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.InvalidTicketClassException;
+import cz.mendelu.pef.airline_reservation_system.utils.exceptions.InvalidTransferInformationException;
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.MissingFlightException;
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.SeatIsNotAvailableException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -82,6 +84,7 @@ public class TicketService {
         }
 
         ticket.setPrice(ticketPrice);
+        ticket.setDiscount(0.0);
         ticket.setPriceAfterDiscount(ticketPrice);
 
         customerService.chargeCustomerCredit(ticket.getCustomer(), ticketPrice);
@@ -155,5 +158,37 @@ public class TicketService {
         ticket.setTicketClass(newTicketClass);
 
         customerService.chargeCustomerCredit(ticket.getCustomer(), priceForTicketClassUpgrade);
+    }
+
+    public Ticket transferTicketToOtherFlight(Ticket ticket, Flight newFlight) {
+        String invalidTransferInformationDetail = "";
+
+        if (ticket == null) {
+            invalidTransferInformationDetail = "Missing ticket";
+        } else if (ticket.getFlight() == null || newFlight == null) {
+            invalidTransferInformationDetail = "Missing flights";
+        } else if (ticket.getCustomer() == null) {
+            invalidTransferInformationDetail = "Missing ticket customer";
+        }
+
+        if (!invalidTransferInformationDetail.isEmpty()) {
+            throw new InvalidTransferInformationException(invalidTransferInformationDetail);
+        }
+
+        Flight oldTicketFlight = ticket.getFlight();
+
+        if (Objects.equals(newFlight.getId(), oldTicketFlight.getId())) {
+            invalidTransferInformationDetail = "Flights cannot be the same";
+            throw new InvalidTransferInformationException(invalidTransferInformationDetail);
+        }
+
+        ticket.setSeatNumber(null);
+        assignSeatNumber(newFlight, ticket);
+
+        ticket.setFlight(newFlight);
+        ticket.setDeparture(newFlight.getDeparture());
+        ticket.setArrival(newFlight.getArrival());
+
+        return ticket;
     }
 }

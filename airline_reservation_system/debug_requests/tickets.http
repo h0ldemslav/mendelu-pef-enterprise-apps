@@ -27,5 +27,9 @@ Content-Type: application/json
 PUT http://localhost:8090/tickets/5283/upgrade_ticket_class?newTicketClass=Economy
 Content-Type: application/json
 
+### Transfer ticket by id
+PUT http://localhost:8090/tickets/5293/transfer?flight_id=9999
+Content-Type: application/json
+
 ### Delete ticket by id
 DELETE http://localhost:8090/tickets/5281
