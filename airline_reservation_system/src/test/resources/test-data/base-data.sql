@@ -17,7 +17,7 @@ INSERT INTO public.customer
 VALUES ('John', 'Doe', 871.81, '+1 326 363 8324', 'johnnyD222@reverbnation.com',
         '$2a$04$e66c9HczLQxSiRWqyMN91uIoadNMW86hPi/xq0RGb40P6/Pi0fepu', 'da8d38a8-28a7-4740-8096-f0197ebabd5c');
 
-INSERT INTO public.fare_tariff VALUES (1, 'AB99', 5513.0, 1326.0, 624.0);
+INSERT INTO public.fare_tariff VALUES (1, 'AB99', 5513.0, 1326.0, 924.0);
 INSERT INTO public.fare_tariff VALUES (2, 'SK91', 10513.0, 1726.0, 737.0);
 INSERT INTO public.fare_tariff VALUES (3, 'JJ51', 9670.0, 2026.0, 791.0);
 

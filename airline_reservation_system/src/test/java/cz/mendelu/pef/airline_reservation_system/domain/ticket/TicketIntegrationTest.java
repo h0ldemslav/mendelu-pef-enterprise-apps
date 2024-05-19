@@ -340,7 +340,7 @@ public class TicketIntegrationTest {
 
         given()
                 .pathParam("id", ticketId)
-                .queryParam("seatNumber", newSeatNumber)
+                .queryParam("seat_number", newSeatNumber)
                 .when()
                 .put("/tickets/{id}/change_seat_number")
                 .then()
@@ -375,7 +375,7 @@ public class TicketIntegrationTest {
 
         given()
                 .pathParam("id", ticketId)
-                .queryParam("seatNumber", newSeatNumber)
+                .queryParam("seat_number", newSeatNumber)
                 .when()
                 .put("/tickets/{id}/change_seat_number")
                 .then()
@@ -389,7 +389,7 @@ public class TicketIntegrationTest {
 
         given()
                 .pathParam("id", ticketId)
-                .queryParam("seatNumber", newSeatNumber)
+                .queryParam("seat_number", newSeatNumber)
                 .when()
                 .put("/tickets/{id}/change_seat_number")
                 .then()
@@ -420,7 +420,7 @@ public class TicketIntegrationTest {
 
         given()
                 .pathParam("id", ticketId)
-                .queryParam("seatNumber", newSeatNumber)
+                .queryParam("seat_number", newSeatNumber)
                 .when()
                 .put("/tickets/{id}/change_seat_number")
                 .then()
@@ -454,7 +454,7 @@ public class TicketIntegrationTest {
 
         given()
                 .pathParam("id", ticketId)
-                .queryParam("seatNumber", newSeatNumber)
+                .queryParam("seat_number", newSeatNumber)
                 .when()
                 .put("/tickets/{id}/change_seat_number")
                 .then()
@@ -476,7 +476,7 @@ public class TicketIntegrationTest {
 
         var customerId = given()
                 .pathParam("id", ticketId)
-                .queryParam("newTicketClass", newTicketClass)
+                .queryParam("new_ticket_class", newTicketClass)
                 .when()
                 .put("/tickets/{id}/upgrade_ticket_class")
                 .then()
@@ -503,7 +503,7 @@ public class TicketIntegrationTest {
 
         given()
                 .pathParam("id", ticketId)
-                .queryParam("newTicketClass", newTicketClass)
+                .queryParam("new_ticket_class", newTicketClass)
                 .when()
                 .put("/tickets/{id}/upgrade_ticket_class")
                 .then()
@@ -519,7 +519,7 @@ public class TicketIntegrationTest {
 
         given()
                 .pathParam("id", ticketId)
-                .queryParam("newTicketClass", newTicketClass)
+                .queryParam("new_ticket_class", newTicketClass)
                 .when()
                 .put("/tickets/{id}/upgrade_ticket_class")
                 .then()
@@ -567,7 +567,7 @@ public class TicketIntegrationTest {
 
         given()
                 .pathParam("id", ticketId)
-                .queryParam("newTicketClass", newTicketClass)
+                .queryParam("new_ticket_class", newTicketClass)
                 .when()
                 .put("/tickets/{id}/upgrade_ticket_class")
                 .then()
@@ -581,9 +581,82 @@ public class TicketIntegrationTest {
 
         given()
                 .pathParam("id", ticketId)
-                .queryParam("newTicketClass", newTicketClass)
+                .queryParam("new_ticket_class", newTicketClass)
                 .when()
                 .put("/tickets/{id}/upgrade_ticket_class")
+                .then()
+                .statusCode(422);
+    }
+
+    @Test
+    public void testTransferTicketToOtherFlight() {
+        final Long ticketId = 1L;
+        final Long flightId = 2L;
+        final Long fareTariffId = 2L;
+        final float customerCreditAfterTransfer = 19999.81f - 1726.0f;
+
+        given()
+                .pathParam("id", ticketId)
+                .queryParam("flight_id", flightId)
+                .when()
+                .put("tickets/{id}/transfer")
+                .then()
+                .statusCode(200);
+
+        var ticketPrice = given()
+                .pathParam("id", fareTariffId)
+                .when()
+                .get("/fare_tariffs/{id}")
+                .then()
+                .statusCode(200)
+                .extract()
+                .path("content.premium_price");
+
+        var customerId = given()
+                .pathParam("id", ticketId)
+                .when()
+                .get("/tickets/{id}")
+                .then()
+                .statusCode(200)
+                .body("content.flight_id", is(flightId.intValue()))
+                .body("content.price", is(ticketPrice))
+                .body("content.price_after_discount", is(ticketPrice))
+                .extract()
+                .path("content.customer_id");
+
+        given()
+                .pathParam("id", customerId.toString())
+                .when()
+                .get("/customers/{id}")
+                .then()
+                .statusCode(200)
+                .body("content.credit", is(customerCreditAfterTransfer));
+    }
+
+    @Test
+    public void testTransferTicketToOtherFlight_InvalidTransferInformation_SameFlights() {
+        final Long ticketId = 1L;
+        final Long flightId = 1L;
+
+        given()
+                .pathParam("id", ticketId)
+                .queryParam("flight_id", flightId)
+                .when()
+                .put("tickets/{id}/transfer")
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
+    public void testTransferTicketToOtherFlight_CustomerHasNotEnoughCredit() {
+        final Long ticketId = 3L;
+        final Long flightId = 1L;
+
+        given()
+                .pathParam("id", ticketId)
+                .queryParam("flight_id", flightId)
+                .when()
+                .put("tickets/{id}/transfer")
                 .then()
                 .statusCode(422);
     }

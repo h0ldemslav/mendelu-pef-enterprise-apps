@@ -61,8 +61,12 @@ public class TicketService {
     }
 
     public void assignSeatNumber(Flight flight, Ticket ticket) {
+        if (flight == null) {
+            throw new MissingFlightException();
+        }
+
         TicketClass ticketClass = ticket.getTicketClass();
-        var ticketPrice = ticket.getPrice();
+        var ticketPrice = flight.getFareTariff().getPriceByTicketClass(ticketClass);
         var seatNumber = ticket.getSeatNumber();
 
         if (seatNumber == null) {

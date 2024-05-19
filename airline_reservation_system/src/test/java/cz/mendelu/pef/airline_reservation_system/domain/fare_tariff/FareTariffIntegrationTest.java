@@ -44,7 +44,7 @@ public class FareTariffIntegrationTest {
                 .body("items[0].code", is("AB99"))
                 .body("items[0].business_price", is(5513.0f))
                 .body("items[0].premium_price", is(1326.0f))
-                .body("items[0].economy_price", is(624.0f))
+                .body("items[0].economy_price", is(924.0f))
                 .body("items[1].id", is(2))
                 .body("items[1].code", is("SK91"))
                 .body("items[1].business_price", is(10513.0f))
@@ -66,7 +66,7 @@ public class FareTariffIntegrationTest {
                 .body("content.code", is("AB99"))
                 .body("content.business_price", is(5513.0f))
                 .body("content.premium_price", is(1326.0f))
-                .body("content.economy_price", is(624.0f));
+                .body("content.economy_price", is(924.0f));
     }
 
     @Test
