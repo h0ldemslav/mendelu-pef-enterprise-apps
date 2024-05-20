@@ -4,6 +4,7 @@ import cz.mendelu.pef.airline_reservation_system.domain.aircraft.Aircraft;
 import cz.mendelu.pef.airline_reservation_system.domain.fare_tariff.FareTariff;
 import cz.mendelu.pef.airline_reservation_system.domain.ticket.Ticket;
 import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
+import cz.mendelu.pef.airline_reservation_system.utils.exceptions.InvalidFlightException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -75,7 +76,87 @@ public class FlightService {
         flightRepository.saveAll(flights);
     }
 
-    public Optional<String> getSeatNumber(Flight flight, TicketClass ticketClass) {
+    public Map<String, List<String>> getAllSeats(Flight flight) {
+        if (flight == null || flight.getAircraft() == null) {
+            throw new InvalidFlightException("Invalid flight or flight doesn't have an assigned aircraft");
+        }
+
+        TicketClass[] allTicketClasses = TicketClass.values();
+        Map<String, List<String>> ticketClassToSeatNumbers = new HashMap<>();
+
+        for (TicketClass ticketClass : allTicketClasses) {
+            ticketClassToSeatNumbers.put(ticketClass.name(), new ArrayList<>());
+        }
+
+        final Aircraft aircraft = flight.getAircraft();
+        final List<String> allowedSeatLetters = List.of("A", "B", "C", "D", "E", "F");
+
+        int seatRowNumber = 1;
+
+        for (TicketClass currentTicketClass : allTicketClasses) {
+            List<String> currentTicketClassSeatNumbers = ticketClassToSeatNumbers.get(currentTicketClass.name());
+            int currentTicketClassCapacity = aircraft.getCapacityByTicketClass(currentTicketClass);
+
+            for (int j = 0; j < allowedSeatLetters.size(); j++) {
+                currentTicketClassSeatNumbers.add(seatRowNumber + allowedSeatLetters.get(j));
+
+                // Avoid creating seat numbers that not fit into ticket class capacity
+                if (currentTicketClassSeatNumbers.size() == currentTicketClassCapacity) {
+                    seatRowNumber++;
+                    break;
+                }
+
+                if (j == allowedSeatLetters.size() - 1) {
+                    j = -1;
+                    seatRowNumber++;
+                }
+            }
+        }
+
+        return ticketClassToSeatNumbers;
+    }
+
+    public Map<String, List<String>> getOccupiedSeats(Flight flight) {
+        if (flight == null) {
+            throw new InvalidFlightException("Invalid flight");
+        }
+
+        TicketClass[] allTicketClasses = TicketClass.values();
+        Map<String, List<String>> ticketClassToSeatNumbers = new HashMap<>();
+
+        for (TicketClass ticketClass : allTicketClasses) {
+            ticketClassToSeatNumbers.put(ticketClass.name(), new ArrayList<>());
+        }
+
+        flight
+                .getTickets()
+                .stream()
+                .filter(t -> t.getSeatNumber() != null)
+                .forEach(t -> {
+                    ticketClassToSeatNumbers
+                            .get(t.getTicketClass().name())
+                            .add(t.getSeatNumber());
+                });
+
+        return ticketClassToSeatNumbers;
+    }
+
+    public Map<String, List<String>> getAvailableSeats(Flight flight) {
+        Map<String, List<String>> allSeats = getAllSeats(flight);
+        Map<String, List<String>> occupiedSeats = getOccupiedSeats(flight);
+
+        allSeats.forEach((ticketClassName, seatNumbers) -> {
+            var availableSeats = seatNumbers
+                    .stream()
+                    .filter(sn -> !occupiedSeats.get(ticketClassName).contains(sn))
+                    .toList();
+            allSeats.put(ticketClassName, availableSeats);
+        });
+
+        return allSeats;
+    }
+
+    public Optional<String> issueSeatNumber(Flight flight, TicketClass ticketClass) {
         if (flight == null || flight.getAircraft() == null) {
             return Optional.empty();
         }
@@ -84,43 +165,10 @@ public class FlightService {
             return Optional.empty();
         }
 
-        final Aircraft aircraft = flight.getAircraft();
-        final List<String> occupiedSeatNumbers = flight
-                .getTickets()
+        return getAvailableSeats(flight)
+                .get(ticketClass.name())
                 .stream()
-                .filter(t -> Objects.equals(t.getTicketClass().name(), ticketClass.name()) && t.getSeatNumber() != null)
-                .map(Ticket::getSeatNumber)
-                .toList();
-        final List<String> allowedSeatLetters = List.of("A", "B", "C", "D", "E", "F");
-        int seatNumberRow = 1;
-        int ticketClassCapacity = flight.getAircraft().getCapacityByTicketClass(ticketClass);
-
-        switch (ticketClass) {
-            case Business:
-                break;
-            case Premium:
-                    seatNumberRow += aircraft.getTotalNumberOfSeatRows(TicketClass.Business, allowedSeatLetters.size());
-                    break;
-            case Economy:
-                seatNumberRow += aircraft.getTotalNumberOfSeatRows(TicketClass.Premium, allowedSeatLetters.size())
-                        + aircraft.getTotalNumberOfSeatRows(TicketClass.Business, allowedSeatLetters.size());
-                break;
-        }
-
-        while (ticketClassCapacity > 0) {
-            for (String letter : allowedSeatLetters) {
-                var seatNumber = seatNumberRow + letter;
-
-                if (!occupiedSeatNumbers.contains(seatNumber)) {
-                    return Optional.of(seatNumber);
-                }
-            }
-
-            seatNumberRow++;
-            ticketClassCapacity--;
-        }
-
-        return Optional.empty();
+                .findFirst();
     }
 
     public boolean isTicketClassSeatsAvailable(Flight flight, TicketClass ticketClass) {

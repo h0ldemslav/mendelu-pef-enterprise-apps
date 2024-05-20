@@ -81,7 +81,7 @@ public class TicketController {
             ticketService.assignSeatNumber(flight, ticket);
         } catch (SeatIsNotAvailableException e) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "No available seat", e);
-        } catch (MissingFlightException e) {
+        } catch (InvalidFlightException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid flight", e);
         } catch (NotEnoughCreditException e) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer has not enough credit", e);
@@ -111,7 +111,7 @@ public class TicketController {
             ticketService.changeSeatNumber(ticket, seatNumber);
         } catch (SeatIsNotAvailableException e) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "No available seat", e);
-        } catch (MissingFlightException e) {
+        } catch (InvalidFlightException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid flight", e);
         } catch (NotEnoughCreditException e) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer has not enough credit", e);
@@ -175,7 +175,7 @@ public class TicketController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getDetail(), e);
         } catch (SeatIsNotAvailableException e) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "No available seat", e);
-        } catch (MissingFlightException e) {
+        } catch (InvalidFlightException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid flight", e);
         } catch (NotEnoughCreditException e) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer has not enough credit", e);

@@ -6,7 +6,7 @@ import cz.mendelu.pef.airline_reservation_system.domain.flight.FlightService;
 import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.InvalidTicketClassException;
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.InvalidTransferInformationException;
-import cz.mendelu.pef.airline_reservation_system.utils.exceptions.MissingFlightException;
+import cz.mendelu.pef.airline_reservation_system.utils.exceptions.InvalidFlightException;
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.SeatIsNotAvailableException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -62,7 +62,7 @@ public class TicketService {
 
     public void assignSeatNumber(Flight flight, Ticket ticket) {
         if (flight == null) {
-            throw new MissingFlightException();
+            throw new InvalidFlightException();
         }
 
         TicketClass ticketClass = ticket.getTicketClass();
@@ -71,7 +71,7 @@ public class TicketService {
 
         if (seatNumber == null) {
             // Automatically assign the first available seat, if so
-            final String newSeatNumber = flightService.getSeatNumber(flight, ticketClass)
+            final String newSeatNumber = flightService.issueSeatNumber(flight, ticketClass)
                     .orElseThrow(SeatIsNotAvailableException::new);
             ticket.setSeatNumber(newSeatNumber);
         } else {
@@ -84,7 +84,7 @@ public class TicketService {
             }
 
             ticketPrice += getTicketExtraPriceForCustomSeat(ticket)
-                    .orElseThrow(MissingFlightException::new);
+                    .orElseThrow(InvalidFlightException::new);
         }
 
         ticket.setPrice(ticketPrice);
@@ -105,7 +105,7 @@ public class TicketService {
         }
 
         final double priceForSeatChange = getTicketExtraPriceForCustomSeat(ticket)
-                .orElseThrow(MissingFlightException::new);
+                .orElseThrow(InvalidFlightException::new);
         final double updatedTicketPrice = ticket.getPrice() + priceForSeatChange;
 
         customerService.chargeCustomerCredit(ticket.getCustomer(), priceForSeatChange);
@@ -149,7 +149,7 @@ public class TicketService {
         }
 
         final String newSeatNumber = flightService
-                .getSeatNumber(flight, newTicketClass)
+                .issueSeatNumber(flight, newTicketClass)
                 // This exception should NOT happen, since seat availability was validated before
                 .orElseThrow(SeatIsNotAvailableException::new);
         ticket.setSeatNumber(newSeatNumber);

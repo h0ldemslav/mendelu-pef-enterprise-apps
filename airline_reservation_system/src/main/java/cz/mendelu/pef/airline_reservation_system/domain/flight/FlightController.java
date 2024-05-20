@@ -3,6 +3,7 @@ package cz.mendelu.pef.airline_reservation_system.domain.flight;
 import cz.mendelu.pef.airline_reservation_system.domain.aircraft.AircraftService;
 import cz.mendelu.pef.airline_reservation_system.domain.airport.AirportService;
 import cz.mendelu.pef.airline_reservation_system.domain.fare_tariff.FareTariffService;
+import cz.mendelu.pef.airline_reservation_system.utils.exceptions.InvalidFlightException;
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.NotFoundException;
 import cz.mendelu.pef.airline_reservation_system.utils.response.ArrayResponse;
 import cz.mendelu.pef.airline_reservation_system.utils.response.ObjectResponse;
@@ -13,6 +14,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("flights")
@@ -64,6 +69,21 @@ public class FlightController {
                 flight,
                 FlightResponse::new
         );
+    }
+
+    @GetMapping(value = "/{id}/seat_numbers", produces = "application/json")
+    @Valid
+    public Map<String, List<String>> getAvailableSeatNumbersById(@PathVariable Long id) {
+        Flight flight = flightService
+                .getFlightById(id)
+                .orElseThrow(NotFoundException::new);
+
+        try {
+            return flightService.getAvailableSeats(flight);
+        } catch (InvalidFlightException e) {
+            // Flight aircraft could be null
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getDetail(), e);
+        }
     }
 
     @PostMapping(value = "", produces = "application/json")

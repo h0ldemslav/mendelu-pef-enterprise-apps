@@ -6,6 +6,10 @@ Content-Type: application/json
 GET http://localhost:8090/flights/5010
 Content-Type: application/json
 
+### Get all seat numbers for flight by id
+GET http://localhost:8090/flights/1/seat_numbers
+Content-Type: application/json
+
 ### Create new flight
 POST http://localhost:8090/flights
 Content-Type: application/json

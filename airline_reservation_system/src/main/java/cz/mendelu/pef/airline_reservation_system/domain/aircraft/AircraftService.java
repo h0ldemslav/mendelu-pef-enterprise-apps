@@ -23,6 +23,10 @@ public class AircraftService {
     }
 
     public Optional<Aircraft> getAircraftById(Long id) {
+        if (id == null) {
+            return Optional.empty();
+        }
+
         return aircraftRepository.findById(id);
     }
 

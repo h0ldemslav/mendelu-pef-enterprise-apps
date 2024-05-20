@@ -93,6 +93,64 @@ public class FlightIntegrationTest {
     }
 
     @Test
+    public void testGetSeatNumbers() {
+        final Long id = 1L;
+
+        given()
+                .pathParam("id", id)
+                .when()
+                .get("/flights/{id}/seat_numbers")
+                .then()
+                .statusCode(200)
+                .body("Business", not(containsInAnyOrder("1A")))
+                .body("Premium", not(containsInAnyOrder("2A")));
+    }
+
+    @Test
+    public void testGetSeatNumbers_FlightNotFound() {
+        final Long id = 999L;
+
+        given()
+                .pathParam("id", id)
+                .when()
+                .get("/flights/{id}/seat_numbers")
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
+    public void testGetFlightById_InvalidFlight_AircraftIsNull() {
+        final FlightRequest request = new FlightRequest(
+                "PG0335",
+                OffsetDateTime.parse("2017-07-16T09:35:00Z"),
+                OffsetDateTime.parse("2017-07-16T10:30:00Z"),
+                "Scheduled",
+                null,
+                null,
+                1L,
+                2L,
+                1L
+        );
+
+        var id = given()
+                .body(request)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/flights")
+                .then()
+                .statusCode(201)
+                .extract()
+                .path("content.id");
+
+        given()
+                .pathParam("id", id)
+                .when()
+                .get("/flights/{id}/seat_numbers")
+                .then()
+                .statusCode(422);
+    }
+
+    @Test
     public void testCreateFlight() {
         final FlightRequest request = new FlightRequest(
                 "PG0335",

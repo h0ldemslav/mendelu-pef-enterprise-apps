@@ -30,9 +30,9 @@ public class FlightUnitTest {
         flight.setAircraft(aircraft);
 
         // when
-        var businessTicketSeat = flightService.getSeatNumber(flight, TicketClass.Business).orElseThrow();
-        var premiumTicketSeat = flightService.getSeatNumber(flight, TicketClass.Premium).orElseThrow();
-        var economyTicketSeat = flightService.getSeatNumber(flight, TicketClass.Economy).orElseThrow();
+        var businessTicketSeat = flightService.issueSeatNumber(flight, TicketClass.Business).orElseThrow();
+        var premiumTicketSeat = flightService.issueSeatNumber(flight, TicketClass.Premium).orElseThrow();
+        var economyTicketSeat = flightService.issueSeatNumber(flight, TicketClass.Economy).orElseThrow();
 
         // then
         assertEquals(businessTicketSeat, "1A");
@@ -57,7 +57,7 @@ public class FlightUnitTest {
             var ticket = new Ticket();
             ticket.setId(Integer.toUnsignedLong(i));
             ticket.setTicketClass(TicketClass.Business);
-            ticket.setSeatNumber(flightService.getSeatNumber(flight, TicketClass.Business).orElseThrow());
+            ticket.setSeatNumber(flightService.issueSeatNumber(flight, TicketClass.Business).orElseThrow());
 
             flight.getTickets().add(ticket);
         });
@@ -65,7 +65,7 @@ public class FlightUnitTest {
             var ticket = new Ticket();
             ticket.setId(Integer.toUnsignedLong(i));
             ticket.setTicketClass(TicketClass.Premium);
-            ticket.setSeatNumber(flightService.getSeatNumber(flight, TicketClass.Premium).orElseThrow());
+            ticket.setSeatNumber(flightService.issueSeatNumber(flight, TicketClass.Premium).orElseThrow());
 
             flight.getTickets().add(ticket);
         });
@@ -73,15 +73,15 @@ public class FlightUnitTest {
             var ticket = new Ticket();
             ticket.setId(Integer.toUnsignedLong(i));
             ticket.setTicketClass(TicketClass.Economy);
-            ticket.setSeatNumber(flightService.getSeatNumber(flight, TicketClass.Economy).orElseThrow());
+            ticket.setSeatNumber(flightService.issueSeatNumber(flight, TicketClass.Economy).orElseThrow());
 
             flight.getTickets().add(ticket);
         });
 
         // when
-        var businessTicketSeat = flightService.getSeatNumber(flight, TicketClass.Business).orElseThrow();
-        var premiumTicketSeat = flightService.getSeatNumber(flight, TicketClass.Premium).orElseThrow();
-        var economyTicketSeat = flightService.getSeatNumber(flight, TicketClass.Economy).orElseThrow();
+        var businessTicketSeat = flightService.issueSeatNumber(flight, TicketClass.Business).orElseThrow();
+        var premiumTicketSeat = flightService.issueSeatNumber(flight, TicketClass.Premium).orElseThrow();
+        var economyTicketSeat = flightService.issueSeatNumber(flight, TicketClass.Economy).orElseThrow();
 
         // then
         assertEquals(businessTicketSeat, "1D");
