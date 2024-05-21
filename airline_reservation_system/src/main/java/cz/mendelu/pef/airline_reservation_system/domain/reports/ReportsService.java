@@ -66,23 +66,17 @@ public class ReportsService {
         return new Reports(
                 getTicketSales(tickets),
                 getTicketClassDistribution(tickets),
-                new ArrayList<>(),
-                0L,
-                getCancelledAndDelayedFlights(flights)
+                flightRepository.getTop5FlightIdsByTicketSales(),
+                getCancelledAndDelayedFlights(flights),
+                0L
         );
     }
 
     private List<Ticket> fetchTicketsOverDatePeriod(OffsetDateTime startDate, OffsetDateTime endDate) {
-        return new ArrayList<>(ticketRepository.findAll())
-                .stream()
-                .filter(t -> t.getDeparture().isAfter(startDate) && t.getArrival().isBefore(endDate))
-                .toList();
+        return ticketRepository.getTicketsByDepartureGreaterThanAndArrivalLessThan(startDate, endDate);
     }
 
     private List<Flight> fetchFlightsOverDatePeriod(OffsetDateTime startDate, OffsetDateTime endDate) {
-        return new ArrayList<>(flightRepository.findAll())
-                .stream()
-                .filter(f -> f.getDeparture().isAfter(startDate) && f.getArrival().isBefore(endDate))
-                .toList();
+        return flightRepository.getFlightsByDepartureGreaterThanAndArrivalLessThan(startDate, endDate);
     }
 }

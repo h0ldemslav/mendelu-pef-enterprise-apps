@@ -17,12 +17,12 @@ public class Reports {
     @JsonProperty("ticket_class_distribution")
     Map<String, Long> ticketClassDistribution;
 
-    @JsonProperty("top_5_popular_flights_base_on_ticket_sales")
-    List<Long> top5PopularFlightsBasedOnTicketSales;
-
-    @JsonProperty("passenger_load_factor_in_percentage")
-    Long passengerLoadFactorInPercentage;
+    @JsonProperty("top_5_popular_flight_ids_base_on_ticket_sales")
+    List<Long> top5PopularFlightIdsBasedOnTicketSales;
 
     @JsonProperty("cancelled_and_delayed_flights")
     Map<String, Long> cancelledAndDelayedFlights;
+
+    @JsonProperty("passenger_load_factor_in_percentage")
+    Long passengerLoadFactorInPercentage;
 }
