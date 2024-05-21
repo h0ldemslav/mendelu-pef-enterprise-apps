@@ -40,6 +40,14 @@ public class Airport {
     @Column(name = "gps_code")
     private String gpsCode;
 
+    @Column(name = "latitude")
+    @NotNull
+    private Double latitude;
+
+    @Column(name = "longitude")
+    @NotNull
+    private Double longitude;
+
     @NotNull
     @OneToMany(mappedBy = "airportDeparture")
     @EqualsAndHashCode.Exclude

@@ -16,7 +16,9 @@ Content-Type: application/json
   "municipality": "Sigtuna Municipality",
   "country_code": "SE",
   "region_code": "SE-ARN",
-  "gps_code": "ESSA"
+  "gps_code": "ESSA",
+  "latitude": 59.649436,
+  "longitude": 17.934262
 }
 
 ### Update airport by id
@@ -29,7 +31,9 @@ Content-Type: application/json
   "municipality": "Sigtuna Municipality, Stockholm County",
   "country_code": "SE",
   "region_code": "SE-ARN",
-  "gps_code": "ESSA"
+  "gps_code": "ESSA",
+  "latitude": 59.649436,
+  "longitude": 17.934262
 }
 
 ### Delete airport by id

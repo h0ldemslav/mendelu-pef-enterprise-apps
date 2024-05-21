@@ -1,8 +1,8 @@
 INSERT INTO public.aircraft VALUES (1, 'SI006', 'Airbus A380', 3, 16, 125);
 INSERT INTO public.aircraft VALUES (2, 'BK007', 'Boeing 737', 6, 18, 180);
-INSERT INTO public.airport VALUES (1, 'BQK', 'Brunswick Golden Isles Airport', 'US', 'US-GA', 'Brunswick', 'KBQK');
-INSERT INTO public.airport VALUES (2, 'TKD', 'Takoradi Airport', 'GH', 'GH-WP', 'Sekondi-Takoradi', 'DGTK');
-INSERT INTO public.airport VALUES (3, 'DEB', 'Debrecen International Airport', 'HU', 'HU-HB', 'Debrecen', 'LHDC');
+INSERT INTO public.airport VALUES (1, 'BQK', 'Brunswick Golden Isles Airport', 'US', 'US-GA', 'Brunswick', 'KBQK', 31.255053, -81.466932);
+INSERT INTO public.airport VALUES (2, 'TKD', 'Takoradi Airport', 'GH', 'GH-WP', 'Sekondi-Takoradi', 'DGTK', 5.217429, -1.801527);
+INSERT INTO public.airport VALUES (3, 'DEB', 'Debrecen International Airport', 'HU', 'HU-HB', 'Debrecen', 'LHDC', 47.491676, 21.609334);
 
 -- `id` is the last column in `customer` table!
 INSERT INTO public.customer

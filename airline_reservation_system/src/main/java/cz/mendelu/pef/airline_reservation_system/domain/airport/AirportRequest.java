@@ -2,6 +2,7 @@ package cz.mendelu.pef.airline_reservation_system.domain.airport;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -28,6 +29,12 @@ public class AirportRequest {
     @JsonProperty("gps_code")
     private String gpsCode;
 
+    @NotNull
+    private Double latitude;
+
+    @NotNull
+    private Double longitude;
+
     public void toAirport(Airport airport) {
         airport.setCode(this.code);
         airport.setName(this.name);
@@ -35,5 +42,7 @@ public class AirportRequest {
         airport.setRegionCode(this.regionCode);
         airport.setMunicipality(this.municipality);
         airport.setGpsCode(this.gpsCode);
+        airport.setLatitude(this.latitude);
+        airport.setLongitude(this.longitude);
     }
 }
