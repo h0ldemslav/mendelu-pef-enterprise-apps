@@ -114,7 +114,7 @@ public class ReportsUnitTest {
         flight1.setStatus("Scheduled");
         flight1.setAircraft(aircraft);
         flight1.setAirportDeparture(airport1);
-        flight1.setAirportDeparture(airport2);
+        flight1.setAirportArrival(airport2);
 
         Set<Ticket> flight1Tickets = flight1.getTickets();
 
