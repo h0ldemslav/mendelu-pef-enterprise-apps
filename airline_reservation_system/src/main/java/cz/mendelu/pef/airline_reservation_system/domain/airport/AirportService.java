@@ -11,7 +11,7 @@ public class AirportService {
 
     private AirportRepository airportRepository;
 
-    AirportService(AirportRepository airportRepository) {
+    public AirportService(AirportRepository airportRepository) {
         this.airportRepository = airportRepository;
     }
 
