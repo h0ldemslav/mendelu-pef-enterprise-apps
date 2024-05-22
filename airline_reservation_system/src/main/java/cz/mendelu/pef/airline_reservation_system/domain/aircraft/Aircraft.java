@@ -58,6 +58,14 @@ public class Aircraft {
         };
     }
 
+    public int getTotalCapacity() {
+        if (this.businessCapacity == null || this.premiumCapacity == null || this.economyCapacity == null) {
+            return 0;
+        }
+
+        return this.businessCapacity + this.premiumCapacity + this.economyCapacity;
+    }
+
     public int getTotalNumberOfSeatRows(TicketClass ticketClass, int numberOfSeatsPerRow) {
         if (numberOfSeatsPerRow == 0) {
             return 0;

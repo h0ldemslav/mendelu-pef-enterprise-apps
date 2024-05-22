@@ -9,16 +9,17 @@ import java.util.List;
 public interface FlightRepository extends JpaRepository<Flight, Long> {
     Iterable<Flight> getFlightsByFareTariff_IdEquals(Long id);
 
-    List<Flight> getFlightsByDepartureGreaterThanAndArrivalLessThan(OffsetDateTime startDate, OffsetDateTime endDate);
+    List<Flight> getFlightsByDepartureGreaterThanEqualAndArrivalLessThan(OffsetDateTime startDate, OffsetDateTime endDate);
 
     @Query("""
         SELECT subquery.flight_id FROM (
             SELECT t.flight.id AS flight_id, SUM(t.priceAfterDiscount) AS ticket_sales
             FROM Ticket AS t
+            WHERE t.flight.departure >= :startDate AND t.flight.arrival < :endDate
             GROUP BY flight_id
             ORDER BY ticket_sales DESC
             LIMIT 5
         ) AS subquery
     """)
-    List<Long> getTop5FlightIdsByTicketSales();
+    List<Long> getTop5FlightIdsByTicketSales(OffsetDateTime startDate, OffsetDateTime endDate);
 }
