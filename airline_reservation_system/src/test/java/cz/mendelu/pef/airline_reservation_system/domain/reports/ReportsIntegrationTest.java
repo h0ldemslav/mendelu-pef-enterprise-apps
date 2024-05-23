@@ -1,7 +1,6 @@
 package cz.mendelu.pef.airline_reservation_system.domain.reports;
 
 import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,8 +9,6 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.time.LocalDate;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.contains;
@@ -36,14 +33,9 @@ public class ReportsIntegrationTest {
 
     @Test
     public void testGetReports() {
-        ReportsRequest request = new ReportsRequest(
-                LocalDate.of(2017, 7, 1),
-                LocalDate.of(2017, 7, 31)
-        );
-
         given()
-                .body(request)
-                .contentType(ContentType.JSON)
+                .queryParam("startDate", "2017-07-01")
+                .queryParam("endDate", "2017-07-31")
                 .when()
                 .get("/reports")
                 .then()
