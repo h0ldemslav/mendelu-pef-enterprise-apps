@@ -4,8 +4,15 @@ import cz.mendelu.pef.airline_reservation_system.domain.flight.Flight;
 import cz.mendelu.pef.airline_reservation_system.domain.flight.FlightService;
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.MissingFareTariffReplacementException;
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.NotFoundException;
+import cz.mendelu.pef.airline_reservation_system.utils.helpers.ApiErrorDetails;
 import cz.mendelu.pef.airline_reservation_system.utils.response.ArrayResponse;
 import cz.mendelu.pef.airline_reservation_system.utils.response.ObjectResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +35,7 @@ public class FareTariffController {
         this.flightService = flightService;
     }
 
+    @Operation(summary = "Get all fare tariffs")
     @GetMapping(value = "", produces = "application/json")
     @Valid
     public ArrayResponse<FareTariffResponse> getFareTariffs() {
@@ -37,7 +45,19 @@ public class FareTariffController {
         );
     }
 
+    @Operation(summary = "Get one fare tariff by id")
     @GetMapping(value = "/{id}", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Id not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            )
+    })
     @Valid
     public ObjectResponse<FareTariffResponse> getFareTariffById(@PathVariable Long id) {
         FareTariff fareTariff = fareTariffService
@@ -50,6 +70,7 @@ public class FareTariffController {
         );
     }
 
+    @Operation(summary = "Create new fare tariff")
     @PostMapping(value = "", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     @Valid
@@ -65,7 +86,19 @@ public class FareTariffController {
         );
     }
 
+    @Operation(summary = "Update one fare tariff by id")
     @PutMapping(value = "/{id}", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Id not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            )
+    })
     @Valid
     public ObjectResponse<FareTariffResponse> updateFareTariffById(
             @PathVariable Long id,
@@ -84,9 +117,26 @@ public class FareTariffController {
         );
     }
 
+    @Operation(summary = "Delete one fare tariff by id")
     @DeleteMapping(value = "")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteFareTariffById(@RequestParam Long id, @RequestParam(required = false) Long replacementId) {
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "No Content"),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Missing fare tariff replacement; if fare tariff is used by at least one flight, the replacement must be provided",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            )
+    })
+    public void deleteFareTariffById(
+            @RequestParam Long id,
+            @Parameter(
+                    description = "Fare tariff replacement id must be provided, if fare tariff is used by at least one flight")
+            @RequestParam(required = false) Long replacementId
+    ) {
         List<Flight> flights = flightService.getAllFlightsByFareTariffId(id);
 
         if (!flights.isEmpty()) {
