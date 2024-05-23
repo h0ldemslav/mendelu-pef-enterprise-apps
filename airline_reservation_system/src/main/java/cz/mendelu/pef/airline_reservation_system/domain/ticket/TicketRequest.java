@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.mendelu.pef.airline_reservation_system.domain.customer.Customer;
 import cz.mendelu.pef.airline_reservation_system.domain.flight.Flight;
 import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -15,22 +16,28 @@ import java.util.UUID;
 @AllArgsConstructor
 public class TicketRequest {
 
+    @Schema(example = "0000721866145")
     @NotEmpty
     private String number;
 
     @JsonProperty("class")
+    @Schema(example = "Business")
     @NotNull
     private TicketClass ticketClass;
 
     @JsonProperty("passenger_full_name")
+    @Schema(example = "John Doe")
     @NotEmpty
     private String passengerFullName;
 
     @JsonProperty("seat_number")
+    @Schema(description = "Valid seat number, integer and letter from [\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]", example = "1A")
     private String seatNumber;
 
+    @Schema(example = "9999")
     private Long flightId;
 
+    @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
     @NotNull
     private UUID customerId;
 

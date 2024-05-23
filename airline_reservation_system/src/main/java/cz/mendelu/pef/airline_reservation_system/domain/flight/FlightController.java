@@ -5,8 +5,15 @@ import cz.mendelu.pef.airline_reservation_system.domain.airport.AirportService;
 import cz.mendelu.pef.airline_reservation_system.domain.fare_tariff.FareTariffService;
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.InvalidFlightException;
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.NotFoundException;
+import cz.mendelu.pef.airline_reservation_system.utils.helpers.ApiErrorDetails;
 import cz.mendelu.pef.airline_reservation_system.utils.response.ArrayResponse;
 import cz.mendelu.pef.airline_reservation_system.utils.response.ObjectResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -42,6 +49,7 @@ public class FlightController {
         this.fareTariffService = fareTariffService;
     }
 
+    @Operation(summary = "Get all flights")
     @GetMapping(value = "", produces = "application/json")
     @Valid
     public ArrayResponse<FlightResponse> getFlights(
@@ -58,7 +66,19 @@ public class FlightController {
         );
     }
 
+    @Operation(summary = "Get one flight by id")
     @GetMapping(value = "/{id}", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Id not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            )
+    })
     @Valid
     public ObjectResponse<FlightResponse> getFlightById(@PathVariable Long id) {
         Flight flight = flightService
@@ -71,7 +91,34 @@ public class FlightController {
         );
     }
 
+    @Operation(summary = "Get flight available seats by id")
     @GetMapping(value = "/{id}/seat_numbers", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "OK",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(example = "{ \"Business\": [], \"Premium\": [], \"Economy\": [] }")
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Id not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            ),
+            @ApiResponse(
+                  responseCode = "422",
+                  description = "Cannot get seats, aircraft is null",
+                  content = @Content(
+                          mediaType = "application/json",
+                          schema = @Schema(implementation = ApiErrorDetails.class)
+                  )
+            )
+    })
     @Valid
     public Map<String, List<String>> getAvailableSeatNumbersById(@PathVariable Long id) {
         Flight flight = flightService
@@ -86,7 +133,19 @@ public class FlightController {
         }
     }
 
+    @Operation(summary = "Create new flight")
     @PostMapping(value = "", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Passed aircraft/airport/fare tariff is not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            )
+    })
     @ResponseStatus(HttpStatus.CREATED)
     @Valid
     public ObjectResponse<FlightResponse> createFlight(@RequestBody @Valid FlightRequest request) {
@@ -101,7 +160,19 @@ public class FlightController {
         );
     }
 
+    @Operation(summary = "Update one flight by id")
     @PutMapping(value = "/{id}", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Id not found or aircraft/airport/fare tariff is null",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            )
+    })
     @Valid
     public ObjectResponse<FlightResponse> updateFlightById(
             @PathVariable Long id,
@@ -120,10 +191,23 @@ public class FlightController {
         );
     }
 
+    @Operation(summary = "Cancel one flight by id")
     @PutMapping(value = "/cancel/{id}", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Id not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            )
+    })
     @Valid
     public ObjectResponse<FlightResponse> cancelFlight(
             @PathVariable Long id,
+            @Parameter(description = "Ticket discount percentage for cancelling flight; will be applied to each ticket of this flight")
             @RequestParam(name = "ticket_discount_percentage") Double ticketDiscountPercentage
     ) {
         Flight flight = flightService
@@ -138,6 +222,7 @@ public class FlightController {
         );
     }
 
+    @Operation(summary = "Delete one flight by id")
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFlightById(@PathVariable Long id) {

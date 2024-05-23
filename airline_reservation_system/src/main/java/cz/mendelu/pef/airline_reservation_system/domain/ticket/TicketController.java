@@ -6,8 +6,15 @@ import cz.mendelu.pef.airline_reservation_system.domain.flight.Flight;
 import cz.mendelu.pef.airline_reservation_system.domain.flight.FlightService;
 import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.*;
+import cz.mendelu.pef.airline_reservation_system.utils.helpers.ApiErrorDetails;
 import cz.mendelu.pef.airline_reservation_system.utils.response.ArrayResponse;
 import cz.mendelu.pef.airline_reservation_system.utils.response.ObjectResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +42,7 @@ public class TicketController {
         this.customerService = customerService;
     }
 
+    @Operation(summary = "Get all tickets")
     @GetMapping(value = "", produces = "application/json")
     @Valid
     public ArrayResponse<TicketResponse> getTickets(
@@ -51,7 +59,19 @@ public class TicketController {
         );
     }
 
+    @Operation(summary = "Get one ticket by id")
     @GetMapping(value = "/{id}", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Id not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            )
+    })
     @Valid
     public ObjectResponse<TicketResponse> getTicketById(@PathVariable Long id) {
         Ticket ticket = ticketService
@@ -64,6 +84,42 @@ public class TicketController {
         );
     }
 
+    @Operation(summary = "Create new ticket")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Flight/customer not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "422",
+                    description = "No available seat",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid flight (something is absent, e.g. aircraft or airports)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "422",
+                    description = "Customer has not enough credit",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            )
+    })
     @PostMapping(value = "", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     @Valid
@@ -96,10 +152,50 @@ public class TicketController {
         );
     }
 
+    @Operation(summary = "Change ticket seat number by id")
     @PutMapping(value = "/{id}/change_seat_number", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Id not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "422",
+                    description = "No available seat",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid flight (something is absent, e.g. aircraft or airports)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "422",
+                    description = "Customer has not enough credit",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            )
+    })
     @Valid
     public ObjectResponse<TicketResponse> changeSeatNumber(
             @PathVariable Long id,
+            @Parameter(
+                    description = "Valid seat number, integer and letter from [\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]",
+                    example = "1A"
+            )
             @RequestParam(name = "seat_number") String seatNumber
     ) {
         Ticket ticket = ticketService
@@ -126,7 +222,43 @@ public class TicketController {
         );
     }
 
+    @Operation(summary = "Upgrade ticket class by id")
     @PutMapping(value = "/{id}/upgrade_ticket_class", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Id not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "422",
+                    description = "Invalid ticket class",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "422",
+                    description = "No available seat",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "422",
+                    description = "Customer has not enough credit",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            )
+    })
     @Valid
     public ObjectResponse<TicketResponse> upgradeTicketClass(
             @PathVariable Long id,
@@ -156,7 +288,51 @@ public class TicketController {
         );
     }
 
+    @Operation(summary = "Transfer ticket from one flight to another by id")
     @PutMapping(value = "/{id}/transfer", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Ticket or new flight not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid transfer information",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "422",
+                    description = "No available seat",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid flight (something is absent, e.g. aircraft or airports)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "422",
+                    description = "Customer has not enough credit",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            )
+    })
     @Valid
     public ObjectResponse<TicketResponse> transferTicketToOtherFlight(
             @PathVariable Long id,
@@ -192,6 +368,7 @@ public class TicketController {
         );
     }
 
+    @Operation(summary = "Delete one ticket by id")
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTicketById(@PathVariable Long id) {
