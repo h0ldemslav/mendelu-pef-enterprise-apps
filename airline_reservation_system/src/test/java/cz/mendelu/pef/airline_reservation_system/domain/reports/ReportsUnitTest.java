@@ -26,7 +26,7 @@ public class ReportsUnitTest {
         // given
         FlightService flightService = new FlightService(null);
         AirportService airportService = new AirportService(null);
-        ReportsService reportsService = new ReportsService(null, null, flightService, airportService);
+        ReportsService reportsService = new ReportsService(null, flightService, airportService);
 
         // when
         double result1 = reportsService.calculatePassengerLoadFactor(getFlightsForTesting());
@@ -40,7 +40,7 @@ public class ReportsUnitTest {
     @Test
     public void testGetTicketSales() {
         // given
-        ReportsService reportsService = new ReportsService(null, null, null, null);
+        ReportsService reportsService = new ReportsService(null, null, null);
 
         List<Ticket> tickets = new ArrayList<>();
         getFlightsForTesting()
@@ -58,7 +58,7 @@ public class ReportsUnitTest {
     @Test
     public void testGetTicketClassDistribution() {
         // given
-        ReportsService reportsService = new ReportsService(null, null, null, null);
+        ReportsService reportsService = new ReportsService(null, null, null);
 
         List<Ticket> tickets = new ArrayList<>();
         getFlightsForTesting()
@@ -80,7 +80,7 @@ public class ReportsUnitTest {
         // given
         FlightService flightService = new FlightService(null);
         AirportService airportService = new AirportService(null);
-        ReportsService reportsService = new ReportsService(null, null, flightService, airportService);
+        ReportsService reportsService = new ReportsService(null, flightService, airportService);
 
         // when
         Map<String, Long> cancelledAndDelayedFlights = reportsService.getCancelledAndDelayedFlights(getFlightsForTesting());

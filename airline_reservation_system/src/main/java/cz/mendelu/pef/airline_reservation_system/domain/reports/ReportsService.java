@@ -5,7 +5,6 @@ import cz.mendelu.pef.airline_reservation_system.domain.flight.Flight;
 import cz.mendelu.pef.airline_reservation_system.domain.flight.FlightRepository;
 import cz.mendelu.pef.airline_reservation_system.domain.flight.FlightService;
 import cz.mendelu.pef.airline_reservation_system.domain.ticket.Ticket;
-import cz.mendelu.pef.airline_reservation_system.domain.ticket.TicketRepository;
 import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +14,6 @@ import java.util.*;
 @Service
 public class ReportsService {
 
-    private TicketRepository ticketRepository;
-
     private FlightRepository flightRepository;
 
     private FlightService flightService;
@@ -24,12 +21,10 @@ public class ReportsService {
     private AirportService airportService;
 
     public ReportsService(
-            TicketRepository ticketRepository,
             FlightRepository flightRepository,
             FlightService flightService,
             AirportService airportService
     ) {
-        this.ticketRepository = ticketRepository;
         this.flightRepository = flightRepository;
         this.flightService = flightService;
         this.airportService = airportService;
@@ -110,8 +105,12 @@ public class ReportsService {
     }
 
     public Reports getAllReports(OffsetDateTime startDate, OffsetDateTime endDate) {
-        var tickets = fetchTicketsOverDatePeriod(startDate, endDate);
         var flights = fetchFlightsOverDatePeriod(startDate, endDate);
+        var tickets = flights
+                .stream()
+                .map(Flight::getTickets)
+                .flatMap(Set::stream)
+                .toList();
 
         return new Reports(
                 getTicketSales(tickets),
@@ -120,10 +119,6 @@ public class ReportsService {
                 getCancelledAndDelayedFlights(flights),
                 calculatePassengerLoadFactor(flights)
         );
-    }
-
-    private List<Ticket> fetchTicketsOverDatePeriod(OffsetDateTime startDate, OffsetDateTime endDate) {
-        return ticketRepository.getTicketsByDepartureGreaterThanAndArrivalLessThan(startDate, endDate);
     }
 
     private List<Flight> fetchFlightsOverDatePeriod(OffsetDateTime startDate, OffsetDateTime endDate) {

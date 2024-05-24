@@ -1,8 +1,2 @@
 ### Get airline reports
-GET http://localhost:8090/reports
-Content-Type: application/json
-
-{
-  "startDate": "2017-06-01",
-  "endDate": "2017-08-30"
-}
+GET http://localhost:8090/reports?startDate=2017-06-01&endDate=2017-09-30

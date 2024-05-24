@@ -1,5 +1,6 @@
 package cz.mendelu.pef.airline_reservation_system.domain.flight;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -9,6 +10,7 @@ import java.util.List;
 public interface FlightRepository extends JpaRepository<Flight, Long> {
     Iterable<Flight> getFlightsByFareTariff_IdEquals(Long id);
 
+    @EntityGraph(attributePaths = {"tickets"})
     List<Flight> getFlightsByDepartureGreaterThanEqualAndArrivalLessThan(OffsetDateTime startDate, OffsetDateTime endDate);
 
     @Query("""
