@@ -8,8 +8,7 @@ import cz.mendelu.pef.airline_reservation_system.domain.fare_tariff.FareTariff;
 import cz.mendelu.pef.airline_reservation_system.domain.flight.Flight;
 import cz.mendelu.pef.airline_reservation_system.domain.flight.FlightService;
 import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
-import cz.mendelu.pef.airline_reservation_system.utils.exceptions.InvalidFlightException;
-import cz.mendelu.pef.airline_reservation_system.utils.exceptions.InvalidTransferInformationException;
+import cz.mendelu.pef.airline_reservation_system.utils.exceptions.*;
 import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
@@ -122,6 +121,107 @@ public class TicketUnitTest {
     }
 
     @Test
+    public void testChangeSeatNumber() {
+        // given
+        FlightService flightService = new FlightService(null);
+        CustomerService customerService = new CustomerService(null);
+        TicketService ticketService = new TicketService(null, flightService, customerService);
+
+        Flight flight = getFlightForTesting();
+        Customer customer = new Customer();
+        customer.setCredit(10000.0);
+
+        Ticket ticket = new Ticket();
+        ticket.setFlight(flight);
+        ticket.setTicketClass(TicketClass.Economy);
+        ticket.setPrice(flight.getFareTariff().getEconomyPrice());
+        ticket.setPriceAfterDiscount(flight.getFareTariff().getEconomyPrice());
+        ticket.setCustomer(customer);
+
+        var priceForSeatChange = ticketService.getTicketExtraPriceForCustomSeat(ticket).orElseThrow();
+
+        var oldTicketPrice = ticket.getPrice();
+        var oldTicketPriceAfterDiscount = ticket.getPriceAfterDiscount();
+        var customerCreditBefore = customer.getCredit();
+
+        // when
+        ticketService.changeSeatNumber(ticket, "15F");
+
+        // then
+        assertThat(ticket.getSeatNumber(), is("15F"));
+        assertThat(ticket.getPrice(), is(oldTicketPrice + priceForSeatChange));
+        assertThat(ticket.getPriceAfterDiscount(), is(oldTicketPriceAfterDiscount + priceForSeatChange));
+        assertThat(customer.getCredit(), is(customerCreditBefore - priceForSeatChange));
+    }
+
+    @Test
+    public void testChangeSeatNumber_SeatIsNotAvailable() {
+        // given
+        FlightService flightService = new FlightService(null);
+        CustomerService customerService = new CustomerService(null);
+        TicketService ticketService = new TicketService(null, flightService, customerService);
+
+        Flight flight = getFlightForTesting();
+        Customer customer = new Customer();
+        customer.setCredit(10000.0);
+
+        Ticket ticket = flight.getTickets().stream().findFirst().orElseThrow();
+
+        var oldTicketPrice = ticket.getPrice();
+        var oldTicketPriceAfterDiscount = ticket.getPriceAfterDiscount();
+        var oldTicketSeatNumber = ticket.getSeatNumber();
+        var customerCreditBefore = customer.getCredit();
+
+        // when
+        assertThrows(
+                SeatIsNotAvailableException.class,
+                () -> ticketService.changeSeatNumber(ticket, "1F")
+        );
+
+        // then
+        assertThat(ticket.getSeatNumber(), is(oldTicketSeatNumber));
+        assertThat(ticket.getPrice(), is(oldTicketPrice));
+        assertThat(ticket.getPriceAfterDiscount(), is(oldTicketPriceAfterDiscount));
+        assertThat(customer.getCredit(), is(customerCreditBefore));
+    }
+
+    @Test
+    public void testChangeSeatNumber_CustomerHasNotEnoughCredit() {
+        // given
+        FlightService flightService = new FlightService(null);
+        CustomerService customerService = new CustomerService(null);
+        TicketService ticketService = new TicketService(null, flightService, customerService);
+
+        Flight flight = getFlightForTesting();
+        Customer customer = new Customer();
+        customer.setCredit(1.0);
+
+        Ticket ticket = new Ticket();
+        ticket.setFlight(flight);
+        ticket.setTicketClass(TicketClass.Economy);
+        ticket.setPrice(flight.getFareTariff().getEconomyPrice());
+        ticket.setPriceAfterDiscount(flight.getFareTariff().getEconomyPrice());
+        ticket.setCustomer(customer);
+
+        var oldTicketPrice = ticket.getPrice();
+        var oldTicketPriceAfterDiscount = ticket.getPriceAfterDiscount();
+        var oldTicketSeatNumber = ticket.getSeatNumber();
+        var customerCreditBefore = customer.getCredit();
+
+        // when
+        assertThrows(
+                NotEnoughCreditException.class,
+                () -> ticketService.changeSeatNumber(ticket, "13F")
+        );
+
+        // then
+        assertThat(ticket.getSeatNumber(), is(oldTicketSeatNumber));
+        assertThat(ticket.getPrice(), is(oldTicketPrice));
+        assertThat(ticket.getPriceAfterDiscount(), is(oldTicketPriceAfterDiscount));
+        assertThat(customer.getCredit(), is(customerCreditBefore));
+    }
+
+    @Test
     public void testIsTicketClassUpgradeValid() {
         // given
         TicketService ticketService = new TicketService(null, null, null);
@@ -186,6 +286,70 @@ public class TicketUnitTest {
         assertThat(ticket.getPrice(), is(premiumPrice));
         assertThat(ticket.getPriceAfterDiscount(), is(premiumPrice));
         assertThat(customerCreditAfterPurchase, is(expectedCustomerCredit));
+    }
+
+    @Test
+    public void testUpgradeTicketClass_InvalidTicketClass() {
+        // given
+        FlightService flightService = new FlightService(null);
+        CustomerService customerService = new CustomerService(null);
+        TicketService ticketService = new TicketService(null, flightService, customerService);
+
+        Flight flight = getFlightForTesting();
+        Customer customer = new Customer();
+        customer.setCredit(10000.0);
+
+        Ticket ticket = flight.getTickets().stream().findFirst().orElseThrow();
+
+        var businessPrice = flight.getFareTariff().getBusinessPrice();
+        var customerCreditAfterPurchase = customer.getCredit();
+
+        // then
+        assertThrows(
+            InvalidTicketClassException.class,
+            () -> ticketService.upgradeTicketClass(ticket, TicketClass.Premium)
+        );
+
+        // when
+        assertThat(ticket.getTicketClass().name(), is(TicketClass.Business.name()));
+        assertThat(ticket.getPrice(), is(businessPrice));
+        assertThat(ticket.getPriceAfterDiscount(), is(businessPrice));
+        assertThat(customer.getCredit(), is(customerCreditAfterPurchase));
+    }
+
+    @Test
+    public void testUpgradeTicketClass_CustomerHasNotEnoughCredit() {
+        // given
+        FlightService flightService = new FlightService(null);
+        CustomerService customerService = new CustomerService(null);
+        TicketService ticketService = new TicketService(null, flightService, customerService);
+
+        Flight flight = getFlightForTesting();
+        Customer customer = new Customer();
+        customer.setCredit(1.0);
+
+        Ticket ticket = new Ticket();
+        ticket.setFlight(flight);
+        ticket.setTicketClass(TicketClass.Economy);
+        ticket.setPrice(flight.getFareTariff().getEconomyPrice());
+        ticket.setPriceAfterDiscount(flight.getFareTariff().getEconomyPrice());
+        ticket.setCustomer(customer);
+
+        var oldTicketPrice = ticket.getPrice();
+        var oldTicketPriceAfterDiscount = ticket.getPriceAfterDiscount();
+
+        // then
+        assertThrows(
+                NotEnoughCreditException.class,
+                () -> ticketService.upgradeTicketClass(ticket, TicketClass.Premium)
+        );
+        var customerCreditAfterPurchase = customer.getCredit();
+
+        // when
+        assertThat(ticket.getTicketClass().name(), is(TicketClass.Economy.name()));
+        assertThat(ticket.getPrice(), is(oldTicketPrice));
+        assertThat(ticket.getPriceAfterDiscount(), is(oldTicketPriceAfterDiscount));
+        assertThat(customer.getCredit(), is(customerCreditAfterPurchase));
     }
 
     @Test

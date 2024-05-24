@@ -1,5 +1,6 @@
 package cz.mendelu.pef.airline_reservation_system.domain.ticket;
 
+import cz.mendelu.pef.airline_reservation_system.domain.customer.Customer;
 import cz.mendelu.pef.airline_reservation_system.domain.customer.CustomerService;
 import cz.mendelu.pef.airline_reservation_system.domain.flight.Flight;
 import cz.mendelu.pef.airline_reservation_system.domain.flight.FlightService;
@@ -157,11 +158,11 @@ public class TicketService {
         final double priceForTicketClassUpgrade = flight.getFareTariff().getPriceByTicketClass(newTicketClass) - ticket.getPrice();
         final double updatedTicketPrice = ticket.getPrice() + priceForTicketClassUpgrade;
 
+        customerService.chargeCustomerCredit(ticket.getCustomer(), priceForTicketClassUpgrade);
+
         ticket.setPrice(updatedTicketPrice);
         ticket.setPriceAfterDiscount(updatedTicketPrice);
         ticket.setTicketClass(newTicketClass);
-
-        customerService.chargeCustomerCredit(ticket.getCustomer(), priceForTicketClassUpgrade);
     }
 
     public Ticket transferTicketToOtherFlight(Ticket ticket, Flight newFlight) {
