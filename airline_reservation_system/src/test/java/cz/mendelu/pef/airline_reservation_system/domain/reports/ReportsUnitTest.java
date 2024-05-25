@@ -1,6 +1,7 @@
 package cz.mendelu.pef.airline_reservation_system.domain.reports;
 
 import cz.mendelu.pef.airline_reservation_system.domain.aircraft.Aircraft;
+import cz.mendelu.pef.airline_reservation_system.domain.aircraft.AircraftService;
 import cz.mendelu.pef.airline_reservation_system.domain.airport.Airport;
 import cz.mendelu.pef.airline_reservation_system.domain.airport.AirportService;
 import cz.mendelu.pef.airline_reservation_system.domain.flight.Flight;
@@ -24,7 +25,8 @@ public class ReportsUnitTest {
     @Test
     public void testCalculatePassengerLoadFactor() {
         // given
-        FlightService flightService = new FlightService(null);
+        AircraftService aircraftService = new AircraftService(null);
+        FlightService flightService = new FlightService(null, aircraftService);
         AirportService airportService = new AirportService(null);
         ReportsService reportsService = new ReportsService(null, flightService, airportService);
 
@@ -78,7 +80,8 @@ public class ReportsUnitTest {
     @Test
     public void testGetCancelledAndDelayedFlights() {
         // given
-        FlightService flightService = new FlightService(null);
+        AircraftService aircraftService = new AircraftService(null);
+        FlightService flightService = new FlightService(null, aircraftService);
         AirportService airportService = new AirportService(null);
         ReportsService reportsService = new ReportsService(null, flightService, airportService);
 

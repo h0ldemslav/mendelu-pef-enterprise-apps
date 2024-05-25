@@ -1,6 +1,7 @@
 package cz.mendelu.pef.airline_reservation_system.domain.flight;
 
 import cz.mendelu.pef.airline_reservation_system.domain.aircraft.Aircraft;
+import cz.mendelu.pef.airline_reservation_system.domain.aircraft.AircraftService;
 import cz.mendelu.pef.airline_reservation_system.domain.fare_tariff.FareTariff;
 import cz.mendelu.pef.airline_reservation_system.domain.ticket.Ticket;
 import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
@@ -19,7 +20,8 @@ public class FlightUnitTest {
     @Test
     public void testGetSeatNumber_VeryFirstSeat() {
         // given
-        var flightService = new FlightService(null);
+        var aircraftService = new AircraftService(null);
+        var flightService = new FlightService(null, aircraftService);
 
         var aircraft = new Aircraft();
         aircraft.setBusinessCapacity(12);
@@ -43,7 +45,8 @@ public class FlightUnitTest {
     @Test
     public void testGetSeatNumber_WithSomeSeatsAlreadyOccupied() {
         // given
-        var flightService = new FlightService(null);
+        var aircraftService = new AircraftService(null);
+        var flightService = new FlightService(null, aircraftService);
 
         var aircraft = new Aircraft();
         aircraft.setBusinessCapacity(12);
@@ -92,7 +95,8 @@ public class FlightUnitTest {
     @Test
     public void testIsTicketClassSeatsAvailable() {
         // given
-        var flightService = new FlightService(null);
+        var aircraftService = new AircraftService(null);
+        var flightService = new FlightService(null, aircraftService);
         var aircraft = new Aircraft();
         var flight = new Flight();
 
@@ -132,7 +136,8 @@ public class FlightUnitTest {
     @Test
     public void testIsTicketClassSeatsAvailable_WithFullCapacity() {
         // given
-        var flightService = new FlightService(null);
+        var aircraftService = new AircraftService(null);
+        var flightService = new FlightService(null, aircraftService);
         var aircraft = new Aircraft();
         var flight = new Flight();
 
@@ -172,7 +177,8 @@ public class FlightUnitTest {
     @Test
     public void testIsTicketClassSeatsAvailable_WithAircraftNull() {
         // given
-        var flightService = new FlightService(null);
+        var aircraftService = new AircraftService(null);
+        var flightService = new FlightService(null, aircraftService);
         var flight = new Flight();
 
         // then
@@ -184,7 +190,8 @@ public class FlightUnitTest {
     @Test
     public void testIsSeatNumberValid() {
         // given
-        var flightService = new FlightService(null);
+        var aircraftService = new AircraftService(null);
+        var flightService = new FlightService(null, aircraftService);
         var aircraft = new Aircraft();
         var flight = new Flight();
 
@@ -226,7 +233,8 @@ public class FlightUnitTest {
     public void testCancelFlight() {
         // given
         var flightRepository = mock(FlightRepository.class);
-        var flightService = new FlightService(flightRepository);
+        var aircraftService = new AircraftService(null);
+        var flightService = new FlightService(flightRepository, aircraftService);
 
         var aircraft = new Aircraft();
         aircraft.setBusinessCapacity(12);

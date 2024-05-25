@@ -1,6 +1,7 @@
 package cz.mendelu.pef.airline_reservation_system.domain.ticket;
 
 import cz.mendelu.pef.airline_reservation_system.domain.aircraft.Aircraft;
+import cz.mendelu.pef.airline_reservation_system.domain.aircraft.AircraftService;
 import cz.mendelu.pef.airline_reservation_system.domain.airport.Airport;
 import cz.mendelu.pef.airline_reservation_system.domain.customer.Customer;
 import cz.mendelu.pef.airline_reservation_system.domain.customer.CustomerService;
@@ -25,7 +26,8 @@ public class TicketUnitTest {
     @Test
     public void testAssignSeatNumber() {
         // given
-        FlightService flightService = new FlightService(null);
+        AircraftService aircraftService = new AircraftService(null);
+        FlightService flightService = new FlightService(null, aircraftService);
         CustomerService customerService = new CustomerService(null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
@@ -57,7 +59,8 @@ public class TicketUnitTest {
     @Test
     public void testAssignSeatNumber_WithCustomSeat() {
         // given
-        FlightService flightService = new FlightService(null);
+        AircraftService aircraftService = new AircraftService(null);
+        FlightService flightService = new FlightService(null, aircraftService);
         CustomerService customerService = new CustomerService(null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
@@ -92,7 +95,8 @@ public class TicketUnitTest {
     @Test
     public void testAssignSeatNumber_InvalidFlightException() {
         // given
-        FlightService flightService = new FlightService(null);
+        AircraftService aircraftService = new AircraftService(null);
+        FlightService flightService = new FlightService(null, aircraftService);
         CustomerService customerService = new CustomerService(null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
@@ -123,7 +127,8 @@ public class TicketUnitTest {
     @Test
     public void testChangeSeatNumber() {
         // given
-        FlightService flightService = new FlightService(null);
+        AircraftService aircraftService = new AircraftService(null);
+        FlightService flightService = new FlightService(null, aircraftService);
         CustomerService customerService = new CustomerService(null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
@@ -157,7 +162,8 @@ public class TicketUnitTest {
     @Test
     public void testChangeSeatNumber_SeatIsNotAvailable() {
         // given
-        FlightService flightService = new FlightService(null);
+        AircraftService aircraftService = new AircraftService(null);
+        FlightService flightService = new FlightService(null, aircraftService);
         CustomerService customerService = new CustomerService(null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
@@ -188,7 +194,8 @@ public class TicketUnitTest {
     @Test
     public void testChangeSeatNumber_CustomerHasNotEnoughCredit() {
         // given
-        FlightService flightService = new FlightService(null);
+        AircraftService aircraftService = new AircraftService(null);
+        FlightService flightService = new FlightService(null, aircraftService);
         CustomerService customerService = new CustomerService(null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
@@ -259,7 +266,8 @@ public class TicketUnitTest {
     @Test
     public void testUpgradeTicketClass() {
         // given
-        FlightService flightService = new FlightService(null);
+        AircraftService aircraftService = new AircraftService(null);
+        FlightService flightService = new FlightService(null, aircraftService);
         CustomerService customerService = new CustomerService(null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
@@ -291,7 +299,8 @@ public class TicketUnitTest {
     @Test
     public void testUpgradeTicketClass_InvalidTicketClass() {
         // given
-        FlightService flightService = new FlightService(null);
+        AircraftService aircraftService = new AircraftService(null);
+        FlightService flightService = new FlightService(null, aircraftService);
         CustomerService customerService = new CustomerService(null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
@@ -320,7 +329,8 @@ public class TicketUnitTest {
     @Test
     public void testUpgradeTicketClass_CustomerHasNotEnoughCredit() {
         // given
-        FlightService flightService = new FlightService(null);
+        AircraftService aircraftService = new AircraftService(null);
+        FlightService flightService = new FlightService(null, aircraftService);
         CustomerService customerService = new CustomerService(null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
@@ -355,7 +365,8 @@ public class TicketUnitTest {
     @Test
     public void testTransferTicketToOtherFlight() {
         // given
-        FlightService flightService = new FlightService(null);
+        AircraftService aircraftService = new AircraftService(null);
+        FlightService flightService = new FlightService(null, aircraftService);
         CustomerService customerService = new CustomerService(null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
@@ -393,7 +404,8 @@ public class TicketUnitTest {
     @Test
     public void testTransferTicketToOtherFlight_SameFlight() {
         // given
-        FlightService flightService = new FlightService(null);
+        AircraftService aircraftService = new AircraftService(null);
+        FlightService flightService = new FlightService(null, aircraftService);
         CustomerService customerService = new CustomerService(null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 

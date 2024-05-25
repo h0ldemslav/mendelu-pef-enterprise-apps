@@ -1,6 +1,7 @@
 package cz.mendelu.pef.airline_reservation_system.domain.flight;
 
 import cz.mendelu.pef.airline_reservation_system.domain.aircraft.Aircraft;
+import cz.mendelu.pef.airline_reservation_system.domain.aircraft.AircraftService;
 import cz.mendelu.pef.airline_reservation_system.domain.fare_tariff.FareTariff;
 import cz.mendelu.pef.airline_reservation_system.domain.ticket.Ticket;
 import cz.mendelu.pef.airline_reservation_system.utils.enums.TicketClass;
@@ -17,8 +18,11 @@ public class FlightService {
 
     private FlightRepository flightRepository;
 
-    public FlightService(FlightRepository flightRepository) {
+    private AircraftService aircraftService;
+
+    public FlightService(FlightRepository flightRepository, AircraftService aircraftService) {
         this.flightRepository = flightRepository;
+        this.aircraftService = aircraftService;
     }
 
     public List<Flight> getAllFlights(Pageable pageRequest) {
@@ -214,31 +218,10 @@ public class FlightService {
             return false;
         }
 
-        var aircraft = flight.getAircraft();
-        var ticketClassSeatRowNumberStart = 0;
-        var ticketClassSeatRowNumberEnd = 0;
+        var startAndEndSeatRowNumbers = aircraftService
+                .getStartAndEndSeatRowNumbers(flight.getAircraft(), ticketClass, allowedSeatLetters.size());
 
-        switch (ticketClass) {
-            case Business:
-                ticketClassSeatRowNumberStart = 1;
-                ticketClassSeatRowNumberEnd = aircraft.getTotalNumberOfSeatRows(TicketClass.Business, allowedSeatLetters.size());
-                break;
-            case Premium:
-                var premiumEnd = aircraft.getTotalNumberOfSeatRows(TicketClass.Premium, allowedSeatLetters.size());
-
-                ticketClassSeatRowNumberStart = 1 + aircraft.getTotalNumberOfSeatRows(TicketClass.Business, allowedSeatLetters.size());
-                ticketClassSeatRowNumberEnd = ticketClassSeatRowNumberStart + (premiumEnd - 1);
-                break;
-            case Economy:
-                var economyEnd = aircraft.getTotalNumberOfSeatRows(TicketClass.Economy, allowedSeatLetters.size());
-
-                ticketClassSeatRowNumberStart = 1 + aircraft.getTotalNumberOfSeatRows(TicketClass.Premium, allowedSeatLetters.size())
-                        + aircraft.getTotalNumberOfSeatRows(TicketClass.Business, allowedSeatLetters.size());
-                ticketClassSeatRowNumberEnd = ticketClassSeatRowNumberStart + (economyEnd - 1);
-                break;
-        }
-
-        return number >= ticketClassSeatRowNumberStart && number <= ticketClassSeatRowNumberEnd;
+        return number >= startAndEndSeatRowNumbers[0] && number <= startAndEndSeatRowNumbers[1];
     }
 
     /**
