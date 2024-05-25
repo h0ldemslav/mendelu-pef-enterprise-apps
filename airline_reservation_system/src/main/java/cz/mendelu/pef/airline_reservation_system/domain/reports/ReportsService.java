@@ -104,6 +104,13 @@ public class ReportsService {
         return passengerKilometers / seatKilometers * 100;
     }
 
+    public double calculateRevenuePerPassenger(List<Ticket> tickets) {
+        double totalNumberOfSoldTickets = tickets.size();
+        double totalRevenue = getTicketSales(tickets);
+
+        return totalNumberOfSoldTickets > 0 ? totalRevenue / totalNumberOfSoldTickets : 0;
+    }
+
     public Reports getAllReports(OffsetDateTime startDate, OffsetDateTime endDate) {
         var flights = fetchFlightsOverDatePeriod(startDate, endDate);
         var tickets = flights
@@ -117,7 +124,8 @@ public class ReportsService {
                 getTicketClassDistribution(tickets),
                 flightRepository.getTop5FlightIdsByTicketSales(startDate, endDate),
                 getCancelledAndDelayedFlights(flights),
-                calculatePassengerLoadFactor(flights)
+                calculatePassengerLoadFactor(flights),
+                calculateRevenuePerPassenger(tickets)
         );
     }
 

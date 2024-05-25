@@ -1,20 +1,25 @@
 package cz.mendelu.pef.airline_reservation_system.domain.customer;
 
+import cz.mendelu.pef.airline_reservation_system.domain.flight.Flight;
+import cz.mendelu.pef.airline_reservation_system.domain.flight.FlightRepository;
+import cz.mendelu.pef.airline_reservation_system.domain.ticket.Ticket;
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.NotEnoughCreditException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerService {
 
     private CustomerRepository customerRepository;
 
-    public CustomerService(CustomerRepository customerRepository) {
+    private FlightRepository flightRepository;
+
+    public CustomerService(CustomerRepository customerRepository, FlightRepository flightRepository) {
         this.customerRepository = customerRepository;
+        this.flightRepository = flightRepository;
     }
 
     public List<Customer> getAllCustomers(Pageable pageRequest) {
@@ -50,5 +55,33 @@ public class CustomerService {
         }
 
         customer.setCredit(customer.getCredit() - amountOfMoney);
+    }
+
+    public List<Flight> generateFlightRecommendations(Customer customer) {
+        List<Flight> flights = customer.getPurchasedTickets()
+                .stream()
+                .map(Ticket::getFlight)
+                .toList();
+
+        // By counting how many times a customer arrives at different airports,
+        // it can be assumed that the customer has work/vacation at the destination,
+        // so he/she travels to those airports frequently -> possible favorite destinations
+        List<String> favoriteDestinations = flights
+                .stream()
+                .collect(Collectors.groupingBy(flight -> flight.getAirportArrival().getCode(), Collectors.counting()))
+                .entrySet()
+                .stream()
+                .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue()))
+                .limit(5)
+                .map(Map.Entry::getKey)
+                .toList();
+
+        return flightRepository
+                .findAll()
+                .stream()
+                .filter(flight -> flight.getStatus().trim().equalsIgnoreCase("Scheduled")
+                        && favoriteDestinations.contains(flight.getAirportArrival().getCode()))
+                .sorted(Comparator.comparing(Flight::getDeparture))
+                .toList();
     }
 }

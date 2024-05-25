@@ -47,6 +47,7 @@ public class ReportsIntegrationTest {
                 .body("content.top_5_popular_flight_ids_based_on_ticket_sales", contains(1, 2))
                 .body("content.cancelled_and_delayed_flights.Delayed", is(0))
                 .body("content.cancelled_and_delayed_flights.Cancelled", is(0))
-                .body("content.passenger_load_factor_in_percentage", is(1.0416666f));
+                .body("content.passenger_load_factor_in_percentage", is(1.0416666f))
+                .body("content.revenue_per_passenger", is(2525.3333f));
     }
 }

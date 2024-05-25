@@ -28,7 +28,7 @@ public class TicketUnitTest {
         // given
         AircraftService aircraftService = new AircraftService(null);
         FlightService flightService = new FlightService(null, aircraftService);
-        CustomerService customerService = new CustomerService(null);
+        CustomerService customerService = new CustomerService(null, null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
         Flight flight = getFlightForTesting();
@@ -61,7 +61,7 @@ public class TicketUnitTest {
         // given
         AircraftService aircraftService = new AircraftService(null);
         FlightService flightService = new FlightService(null, aircraftService);
-        CustomerService customerService = new CustomerService(null);
+        CustomerService customerService = new CustomerService(null, null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
         Flight flight = getFlightForTesting();
@@ -97,7 +97,7 @@ public class TicketUnitTest {
         // given
         AircraftService aircraftService = new AircraftService(null);
         FlightService flightService = new FlightService(null, aircraftService);
-        CustomerService customerService = new CustomerService(null);
+        CustomerService customerService = new CustomerService(null, null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
         Customer customer = new Customer();
@@ -129,7 +129,7 @@ public class TicketUnitTest {
         // given
         AircraftService aircraftService = new AircraftService(null);
         FlightService flightService = new FlightService(null, aircraftService);
-        CustomerService customerService = new CustomerService(null);
+        CustomerService customerService = new CustomerService(null, null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
         Flight flight = getFlightForTesting();
@@ -164,7 +164,7 @@ public class TicketUnitTest {
         // given
         AircraftService aircraftService = new AircraftService(null);
         FlightService flightService = new FlightService(null, aircraftService);
-        CustomerService customerService = new CustomerService(null);
+        CustomerService customerService = new CustomerService(null, null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
         Flight flight = getFlightForTesting();
@@ -196,7 +196,7 @@ public class TicketUnitTest {
         // given
         AircraftService aircraftService = new AircraftService(null);
         FlightService flightService = new FlightService(null, aircraftService);
-        CustomerService customerService = new CustomerService(null);
+        CustomerService customerService = new CustomerService(null, null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
         Flight flight = getFlightForTesting();
@@ -268,7 +268,7 @@ public class TicketUnitTest {
         // given
         AircraftService aircraftService = new AircraftService(null);
         FlightService flightService = new FlightService(null, aircraftService);
-        CustomerService customerService = new CustomerService(null);
+        CustomerService customerService = new CustomerService(null, null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
         Flight flight = getFlightForTesting();
@@ -301,7 +301,7 @@ public class TicketUnitTest {
         // given
         AircraftService aircraftService = new AircraftService(null);
         FlightService flightService = new FlightService(null, aircraftService);
-        CustomerService customerService = new CustomerService(null);
+        CustomerService customerService = new CustomerService(null, null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
         Flight flight = getFlightForTesting();
@@ -331,7 +331,7 @@ public class TicketUnitTest {
         // given
         AircraftService aircraftService = new AircraftService(null);
         FlightService flightService = new FlightService(null, aircraftService);
-        CustomerService customerService = new CustomerService(null);
+        CustomerService customerService = new CustomerService(null, null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
         Flight flight = getFlightForTesting();
@@ -367,7 +367,7 @@ public class TicketUnitTest {
         // given
         AircraftService aircraftService = new AircraftService(null);
         FlightService flightService = new FlightService(null, aircraftService);
-        CustomerService customerService = new CustomerService(null);
+        CustomerService customerService = new CustomerService(null, null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
         Flight flight = getFlightForTesting();
@@ -406,7 +406,7 @@ public class TicketUnitTest {
         // given
         AircraftService aircraftService = new AircraftService(null);
         FlightService flightService = new FlightService(null, aircraftService);
-        CustomerService customerService = new CustomerService(null);
+        CustomerService customerService = new CustomerService(null, null);
         TicketService ticketService = new TicketService(null, flightService, customerService);
 
         Flight flight = getFlightForTesting();

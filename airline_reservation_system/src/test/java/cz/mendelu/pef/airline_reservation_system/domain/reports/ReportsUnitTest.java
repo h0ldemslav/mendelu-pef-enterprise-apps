@@ -40,6 +40,41 @@ public class ReportsUnitTest {
     }
 
     @Test
+    public void testCalculateRevenuePerPassenger() {
+        // given
+        AircraftService aircraftService = new AircraftService(null);
+        FlightService flightService = new FlightService(null, aircraftService);
+        AirportService airportService = new AirportService(null);
+        ReportsService reportsService = new ReportsService(null, flightService, airportService);
+
+        List<Ticket> tickets = getFlightsForTesting()
+                .stream()
+                .map(Flight::getTickets)
+                .flatMap(Set::stream).toList();
+
+        // when
+        double result = reportsService.calculateRevenuePerPassenger(tickets);
+
+        // then
+        assertThat(result, is(5554.5));
+    }
+
+    @Test
+    public void testCalculateRevenuePerPassenger_ZeroTickets() {
+        // given
+        AircraftService aircraftService = new AircraftService(null);
+        FlightService flightService = new FlightService(null, aircraftService);
+        AirportService airportService = new AirportService(null);
+        ReportsService reportsService = new ReportsService(null, flightService, airportService);
+
+        // when
+        double result = reportsService.calculateRevenuePerPassenger(List.of());
+
+        // then
+        assertThat(result, is(0.0));
+    }
+
+    @Test
     public void testGetTicketSales() {
         // given
         ReportsService reportsService = new ReportsService(null, null, null);

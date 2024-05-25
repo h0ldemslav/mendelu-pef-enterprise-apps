@@ -1,6 +1,5 @@
 package cz.mendelu.pef.airline_reservation_system.domain.ticket;
 
-import cz.mendelu.pef.airline_reservation_system.domain.customer.Customer;
 import cz.mendelu.pef.airline_reservation_system.domain.customer.CustomerService;
 import cz.mendelu.pef.airline_reservation_system.domain.flight.Flight;
 import cz.mendelu.pef.airline_reservation_system.domain.flight.FlightService;

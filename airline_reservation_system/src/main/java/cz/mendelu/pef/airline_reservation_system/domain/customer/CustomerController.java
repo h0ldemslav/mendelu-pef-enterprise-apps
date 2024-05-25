@@ -1,5 +1,7 @@
 package cz.mendelu.pef.airline_reservation_system.domain.customer;
 
+import cz.mendelu.pef.airline_reservation_system.domain.flight.Flight;
+import cz.mendelu.pef.airline_reservation_system.domain.flight.FlightResponse;
 import cz.mendelu.pef.airline_reservation_system.utils.exceptions.NotFoundException;
 import cz.mendelu.pef.airline_reservation_system.utils.helpers.ApiErrorDetails;
 import cz.mendelu.pef.airline_reservation_system.utils.response.ArrayResponse;
@@ -17,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -70,6 +73,33 @@ public class CustomerController {
         return ObjectResponse.of(
                 customer,
                 CustomerResponse::new
+        );
+    }
+
+    @Operation(summary = "Get flight recommendations for customer by id")
+    @GetMapping(value = "/{id}/recommendations", produces = "application/json")
+    @Valid
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Id not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorDetails.class)
+                    )
+            )
+    })
+    public ArrayResponse<FlightResponse> getFlightRecommendationsForCustomerById(@PathVariable UUID id) {
+        Customer customer = customerService
+                .getCustomerById(id)
+                .orElseThrow(NotFoundException::new);
+
+        List<Flight> recommendations = customerService.generateFlightRecommendations(customer);
+
+        return ArrayResponse.of(
+                recommendations,
+                FlightResponse::new
         );
     }
 

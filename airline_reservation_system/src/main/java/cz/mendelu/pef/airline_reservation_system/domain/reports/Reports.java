@@ -31,4 +31,8 @@ public class Reports {
     @JsonProperty("passenger_load_factor_in_percentage")
     @Schema(example = "47.597552795840535")
     Double passengerLoadFactorInPercentage;
+
+    @JsonProperty("revenue_per_passenger")
+    @Schema(example = "954.95")
+    Double revenuePerPassenger;
 }

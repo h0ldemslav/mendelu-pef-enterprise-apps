@@ -24,7 +24,7 @@ PUT http://localhost:8090/tickets/5280/change_seat_number?seatNumber=2A
 Content-Type: application/json
 
 ### Upgrade ticket class by id
-PUT http://localhost:8090/tickets/5283/upgrade_ticket_class?newTicketClass=Economy
+PUT http://localhost:8090/tickets/5305/upgrade_ticket_class?new_ticket_class=Premium
 Content-Type: application/json
 
 ### Transfer ticket by id

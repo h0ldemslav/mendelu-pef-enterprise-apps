@@ -51,7 +51,7 @@ public class FlightResponse {
     @NotNull
     private Long fareTariffId;
 
-    FlightResponse(Flight flight) {
+    public FlightResponse(Flight flight) {
         this.id = flight.getId();
         this.number = flight.getNumber();
         this.departure = flight.getDeparture();
