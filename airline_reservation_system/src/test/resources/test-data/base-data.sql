@@ -29,6 +29,10 @@ INSERT INTO public.flight VALUES (2, 'BB0531',
                                   TO_TIMESTAMP('2017-07-16 16:35:00', 'YYYY-MM-DD HH24:MI:SS'),
                                   TO_TIMESTAMP('2017-07-16 20:30:00', 'YYYY-MM-DD HH24:MI:SS'),
                                   'Scheduled', NULL, 1, 2, 1, 2);
+INSERT INTO public.flight VALUES (3, 'BB0531',
+                                  TO_TIMESTAMP('2017-07-31 17:35:00', 'YYYY-MM-DD HH24:MI:SS'),
+                                  TO_TIMESTAMP('2017-07-31 21:30:00', 'YYYY-MM-DD HH24:MI:SS'),
+                                  'Scheduled', NULL, 2, 1, 2, 2);
 
 INSERT INTO public.ticket VALUES (1, '0008386672215', 'Premium', 1326.0, 0.0, 1326.0, '2A', 'Marry Smith',
                                   TO_TIMESTAMP('2017-07-16 09:35:00 +02', 'YYYY-MM-DD HH24:MI:SS TZH:TZM'),

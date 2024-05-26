@@ -82,6 +82,37 @@ public class CustomerIntegrationTest {
     }
 
     @Test
+    public void testGetFlightRecommendationsForCustomerById() {
+        final UUID id = UUID.fromString("0931192f-35a2-461b-bc85-133290c63c67");
+
+        given()
+                .pathParam("id", id)
+                .when()
+                .get("/customers/{id}/recommendations")
+                .then()
+                .statusCode(200)
+                .body("items.size()", is(2))
+                .body("items[0].id", is(1))
+                .body("items[0].status", is("Scheduled"))
+                .body("items[0].airport_arrival_id", is(2))
+                .body("items[1].id", is(3))
+                .body("items[1].status", is("Scheduled"))
+                .body("items[1].airport_arrival_id", is(2));
+    }
+
+    @Test
+    public void testGetFlightRecommendationsForCustomerById_NotFound() {
+        final UUID id = UUID.fromString("0931192f-35a2-461b-bc85-133290c63c6a");
+
+        given()
+                .pathParam("id", id)
+                .when()
+                .get("/customers/{id}/recommendations")
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
     public void testCreateCustomer() {
         final CustomerRequest request = new CustomerRequest(
                 "Erik",

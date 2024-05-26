@@ -61,6 +61,7 @@ public class CustomerService {
         List<Flight> flights = customer.getPurchasedTickets()
                 .stream()
                 .map(Ticket::getFlight)
+                .filter(Objects::nonNull)
                 .toList();
 
         // By counting how many times a customer arrives at different airports,
