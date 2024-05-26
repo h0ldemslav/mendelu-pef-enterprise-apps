@@ -2,6 +2,17 @@
 
 This is a project for Enterprise applications course LS 2023/2024. The goal is to implement a system for managing airline’s customers, flights, tickets, etc. 
 
+### Dataset import
+1. Run postgres (via postgres cmd or docker)
+2. Create db - `airline` (port 5432)
+3. Connect to that db
+4. Run the app to apply migrations
+5. Import each table from folder `db_data` using postgres `COPY` command in console
+
+```sql
+COPY airport 'PROJECT_PATH/db_data/airport.csv' WITH CSV HEADER;
+```
+
 ### Main entities
 
 Customer:
@@ -47,6 +58,8 @@ Airport:
   - region_code
   - municipality
   - gps_code
+  - latitude
+  - longitude
 
 
 Aircraft:
@@ -78,8 +91,10 @@ Ticket:
 
 - Basic CRUD operations for each entity
 - A bit advanced operations
-  - Change seat assignment, if available
-  - Upgrade ticket class, if possible
-  - Transfer to another flight
-  - Flight cancellation (make flight cancelled and give passengers a discount)
-  - Flight reports (ticket revenue for a certain flight, ticket class distribution, passenger load factor)
+    - Seat generation 
+    - Change seat assignment, if available
+    - Upgrade ticket class, if possible
+    - Transfer to another flight
+    - Flight cancellation (make flight cancelled and give passengers a discount)
+    - Flight reports (ticket revenue for a certain flight, ticket class distribution, passenger load factor)
+    - Simple flight recommendations
