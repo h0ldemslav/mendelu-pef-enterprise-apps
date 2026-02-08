@@ -1,6 +1,6 @@
 # Airline Reservation System
 
-This is a project for Enterprise applications course LS 2023/2024. The goal is to implement a system for managing airline’s customers, flights, tickets, etc. 
+This is a project for Enterprise applications course LS 2023/2024. The goal is to implement a system for managing airline's customers, flights, tickets, etc. 
 
 ### Dataset import
 1. Run postgres (via postgres cmd or docker)
